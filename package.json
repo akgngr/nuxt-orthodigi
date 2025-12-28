@@ -1,0 +1,38 @@
+{
+  "name": "nuxt-orthodigi",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.82",
+    "@iconify-json/simple-icons": "^1.2.63",
+    "@neondatabase/auth": "0.1.0-beta.20",
+    "@neondatabase/serverless": "^1.0.2",
+    "@nuxt/ui": "^4.3.0",
+    "@pinia/nuxt": "^0.11.3",
+    "@prisma/adapter-neon": "^7.2.0",
+    "@prisma/client": "^7.2.0",
+    "better-auth": "^1.4.9",
+    "nuxt": "^4.2.2",
+    "pinia": "^3.0.4",
+    "prisma": "^7.2.0",
+    "uuid": "^13.0.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.12.1",
+    "@types/uuid": "^11.0.0",
+    "@types/ws": "^8.18.1",
+    "eslint": "^9.39.2",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.2.1"
+  },
+  "packageManager": "pnpm@10.26.1"
+}
