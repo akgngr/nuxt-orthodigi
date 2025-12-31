@@ -1,26 +1,92 @@
 import { prisma } from "./prisma";
 
+/**
+ * Modular Permission System
+ * Allows defining and grouping permissions by module.
+ */
+
+type PermissionMap = {
+    [action: string]: string;
+};
+
+type ModulePermissions = {
+    [module: string]: PermissionMap;
+};
+
+// Internal registry
+const _permissions: ModulePermissions = {};
+
+/**
+ * Defines and registers permissions for a module
+ */
+export function definePermissions<T extends PermissionMap>(moduleName: string, actions: T): T {
+    _permissions[moduleName] = actions;
+    return actions;
+}
+
+// Core Modules
 export const PERMISSIONS = {
-    USERS: {
+    USERS: definePermissions('USERS', {
         READ: 'users:read',
         WRITE: 'users:write',
         DELETE: 'users:delete',
-    },
-    ROLES: {
+    }),
+    ROLES: definePermissions('ROLES', {
         READ: 'roles:read',
         WRITE: 'roles:write',
         DELETE: 'roles:delete',
-    },
-    DASHBOARD: {
+    }),
+    DASHBOARD: definePermissions('DASHBOARD', {
         READ: 'dashboard:read',
-    }
+    }),
+    PAGES: definePermissions('PAGES', {
+        READ: 'pages:read',
+        WRITE: 'pages:write',
+        DELETE: 'pages:delete',
+    }),
+    BLOG: definePermissions('BLOG', {
+        READ: 'blog:read',
+        WRITE: 'blog:write',
+        DELETE: 'blog:delete',
+    }),
+    PRODUCTS: definePermissions('PRODUCTS', {
+        READ: 'products:read',
+        WRITE: 'products:write',
+        DELETE: 'products:delete',
+    }),
+    DOCTORTESTIMONIAL: definePermissions('DOCTORTESTIMONIAL', {
+        READ: 'doctortestimonial:read',
+        WRITE: 'doctortestimonial:write',
+        DELETE: 'doctortestimonial:delete',
+    }),
+    DOCTORPROFILE: definePermissions('DOCTORPROFILE', {
+        READ: 'doctorprofile:read',
+        WRITE: 'doctorprofile:write',
+        DELETE: 'doctorprofile:delete',
+    }),
+    APPOINTMENTS: definePermissions('APPOINTMENTS', {
+        READ: 'appointments:read',
+        WRITE: 'appointments:write',
+        DELETE: 'appointments:delete',
+    }),
+    MESSAGES: definePermissions('MESSAGES', {
+        READ: 'messages:read',
+        WRITE: 'messages:write',
+        DELETE: 'messages:delete',
+    }),
+    SETTINGS: definePermissions('SETTINGS', {
+        READ: 'settings:read',
+        WRITE: 'settings:write',
+    }),
+    REPORTS: definePermissions('REPORTS', {
+        READ: 'reports:read',
+    }),
 } as const;
 
-export const ALL_PERMISSIONS = [
-    ...Object.values(PERMISSIONS.USERS),
-    ...Object.values(PERMISSIONS.ROLES),
-    ...Object.values(PERMISSIONS.DASHBOARD),
-];
+/**
+ * Returns all registered permissions as a flat array
+ */
+export const ALL_PERMISSIONS = Object.values(_permissions).flatMap(module => Object.values(module));
 
 export async function getUserPermissions(userId: string) {
     const userRoles = await prisma.userRole.findMany({

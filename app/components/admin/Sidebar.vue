@@ -1,90 +1,50 @@
 <script setup lang="ts">
-const items = [
-  [
-    {
-      label: 'Ana Sayfa',
-      icon: 'i-lucide-home',
-      to: '/admin'
+import { navigationItems as items, type NavigationItem } from '~/constants/navigation'
+import { useAuth } from '~/composables/useAuth'
+
+const { hasPermission } = useAuth()
+
+/**
+ * Filter navigation items based on user permissions.
+ * If an item has no permission requirement, it's shown.
+ * If it has children, it's shown if at least one child is visible.
+ */
+function filterItems(items: NavigationItem[]): NavigationItem[] {
+  return items.reduce((acc: NavigationItem[], item) => {
+    // If it's a label, keep it for now (we'll filter empty sections later)
+    if (item.type === 'label') {
+      acc.push(item)
+      return acc
     }
-  ],
-  [
-    {
-      label: 'Yönetim',
-      type: 'label'
-    },
-    {
-      label: 'Kullanıcı Yönetimi',
-      icon: 'i-lucide-users',
-      defaultOpen: true,
-      children: [
-        {
-          label: 'Kullanıcılar',
-          to: '/admin/users/users',
-          icon: 'i-lucide-user'
-        },
-        {
-          label: 'Roller',
-          to: '/admin/users/roles',
-          icon: 'i-lucide-shield'
-        },
-        {
-          label: 'İzinler',
-          to: '/admin/users/permissions',
-          icon: 'i-lucide-key'
-        }
-      ]
-    },
-    {
-      label: 'İçerik Yönetimi',
-      icon: 'i-lucide-file-text',
-      defaultOpen: true,
-      children: [
-        {
-          label: 'Sayfalar',
-          to: '/admin/pages',
-          icon: 'i-lucide-files'
-        },
-        {
-          label: 'Blog Yazıları',
-          to: '/admin/blog',
-          icon: 'i-lucide-pen-tool'
-        },
-        {
-          label: 'Ürünler',
-          to: '/admin/urunler',
-          icon: 'i-lucide-shopping-cart'
-        }
-      ]
-    },
-    {
-      label: 'Randevular',
-      icon: 'i-lucide-calendar',
-      to: '/admin/appointments'
-    },
-    {
-      label: 'Mesajlar',
-      icon: 'i-lucide-mail',
-      to: '/admin/messages',
-      badge: '12'
+
+    // Check children first
+    const filteredChildren = item.children ? filterItems(item.children) : undefined
+    
+    // Check permission for the item itself
+    const isVisible = !item.permission || hasPermission(item.permission)
+
+    if (isVisible || (filteredChildren && filteredChildren.length > 0)) {
+      acc.push({
+        ...item,
+        children: filteredChildren
+      })
     }
-  ],
-  [
-    {
-      label: 'Sistem',
-      type: 'label'
-    },
-    {
-      label: 'Ayarlar',
-      icon: 'i-lucide-settings',
-      to: '/admin/settings'
-    },
-    {
-      label: 'Raporlar',
-      icon: 'i-lucide-bar-chart',
-      to: '/admin/reports'
+
+    return acc
+  }, [])
+}
+
+// Filter the nested array structure of navigationItems
+const filteredNavigationItems = computed(() => {
+  return items.map(group => {
+    const filteredGroup = filterItems(group)
+    // Remove labels if they are the only thing left in the group
+    if (filteredGroup.length === 1 && filteredGroup[0]?.type === 'label') {
+      return []
     }
-  ]
-]
+    return filteredGroup
+  }).filter(group => group.length > 0)
+})
 </script>
 
 <template>
@@ -108,7 +68,7 @@ const items = [
     <template #default>
       <div class="flex-1 overflow-y-auto py-4">
         <UNavigationMenu
-          :items="items"
+          :items="filteredNavigationItems"
           orientation="vertical"
           class="px-2"
           accordion

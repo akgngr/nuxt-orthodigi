@@ -1,5 +1,7 @@
 import { PageService } from '../../../services/page.service'
 import { z } from 'zod'
+import { requirePermission } from '../../../utils/protect'
+import { PERMISSIONS } from '../../../utils/permissions'
 
 const pageSchema = z.object({
     slug: z.string().min(1).optional(),
@@ -12,6 +14,7 @@ const pageSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
+    await requirePermission(event, PERMISSIONS.PAGES.WRITE)
     const id = getRouterParam(event, 'id')
     if (!id) {
         throw createError({

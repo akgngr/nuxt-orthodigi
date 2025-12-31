@@ -88,6 +88,11 @@ export type Product = $Result.DefaultSelection<Prisma.$ProductPayload>
  * 
  */
 export type DoctorTestimonial = $Result.DefaultSelection<Prisma.$DoctorTestimonialPayload>
+/**
+ * Model DoctorProfile
+ * 
+ */
+export type DoctorProfile = $Result.DefaultSelection<Prisma.$DoctorProfilePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -355,6 +360,16 @@ export class PrismaClient<
     * ```
     */
   get doctorTestimonial(): Prisma.DoctorTestimonialDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.doctorProfile`: Exposes CRUD operations for the **DoctorProfile** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DoctorProfiles
+    * const doctorProfiles = await prisma.doctorProfile.findMany()
+    * ```
+    */
+  get doctorProfile(): Prisma.DoctorProfileDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -803,7 +818,8 @@ export namespace Prisma {
     Page: 'Page',
     PageComponent: 'PageComponent',
     Product: 'Product',
-    DoctorTestimonial: 'DoctorTestimonial'
+    DoctorTestimonial: 'DoctorTestimonial',
+    DoctorProfile: 'DoctorProfile'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -819,7 +835,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "patient" | "appointment" | "blog" | "blogComponent" | "role" | "permission" | "userRole" | "page" | "pageComponent" | "product" | "doctorTestimonial"
+      modelProps: "user" | "session" | "account" | "verification" | "patient" | "appointment" | "blog" | "blogComponent" | "role" | "permission" | "userRole" | "page" | "pageComponent" | "product" | "doctorTestimonial" | "doctorProfile"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1933,6 +1949,80 @@ export namespace Prisma {
           }
         }
       }
+      DoctorProfile: {
+        payload: Prisma.$DoctorProfilePayload<ExtArgs>
+        fields: Prisma.DoctorProfileFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DoctorProfileFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DoctorProfileFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload>
+          }
+          findFirst: {
+            args: Prisma.DoctorProfileFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DoctorProfileFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload>
+          }
+          findMany: {
+            args: Prisma.DoctorProfileFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload>[]
+          }
+          create: {
+            args: Prisma.DoctorProfileCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload>
+          }
+          createMany: {
+            args: Prisma.DoctorProfileCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DoctorProfileCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload>[]
+          }
+          delete: {
+            args: Prisma.DoctorProfileDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload>
+          }
+          update: {
+            args: Prisma.DoctorProfileUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload>
+          }
+          deleteMany: {
+            args: Prisma.DoctorProfileDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DoctorProfileUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DoctorProfileUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload>[]
+          }
+          upsert: {
+            args: Prisma.DoctorProfileUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DoctorProfilePayload>
+          }
+          aggregate: {
+            args: Prisma.DoctorProfileAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDoctorProfile>
+          }
+          groupBy: {
+            args: Prisma.DoctorProfileGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DoctorProfileGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DoctorProfileCountArgs<ExtArgs>
+            result: $Utils.Optional<DoctorProfileCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2056,6 +2146,7 @@ export namespace Prisma {
     pageComponent?: PageComponentOmit
     product?: ProductOmit
     doctorTestimonial?: DoctorTestimonialOmit
+    doctorProfile?: DoctorProfileOmit
   }
 
   /* Types for Logging */
@@ -18771,6 +18862,1067 @@ export namespace Prisma {
 
 
   /**
+   * Model DoctorProfile
+   */
+
+  export type AggregateDoctorProfile = {
+    _count: DoctorProfileCountAggregateOutputType | null
+    _min: DoctorProfileMinAggregateOutputType | null
+    _max: DoctorProfileMaxAggregateOutputType | null
+  }
+
+  export type DoctorProfileMinAggregateOutputType = {
+    id: string | null
+    isim_unvan: string | null
+    uzmanlik_alani: string | null
+    unvan_detay: string | null
+    pratisen_ozellikleri: string | null
+    slug: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DoctorProfileMaxAggregateOutputType = {
+    id: string | null
+    isim_unvan: string | null
+    uzmanlik_alani: string | null
+    unvan_detay: string | null
+    pratisen_ozellikleri: string | null
+    slug: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DoctorProfileCountAggregateOutputType = {
+    id: number
+    isim_unvan: number
+    uzmanlik_alani: number
+    unvan_detay: number
+    adres: number
+    iletisim: number
+    pratisen_ozellikleri: number
+    konum_bilgisi: number
+    slug: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DoctorProfileMinAggregateInputType = {
+    id?: true
+    isim_unvan?: true
+    uzmanlik_alani?: true
+    unvan_detay?: true
+    pratisen_ozellikleri?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DoctorProfileMaxAggregateInputType = {
+    id?: true
+    isim_unvan?: true
+    uzmanlik_alani?: true
+    unvan_detay?: true
+    pratisen_ozellikleri?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DoctorProfileCountAggregateInputType = {
+    id?: true
+    isim_unvan?: true
+    uzmanlik_alani?: true
+    unvan_detay?: true
+    adres?: true
+    iletisim?: true
+    pratisen_ozellikleri?: true
+    konum_bilgisi?: true
+    slug?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DoctorProfileAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DoctorProfile to aggregate.
+     */
+    where?: DoctorProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DoctorProfiles to fetch.
+     */
+    orderBy?: DoctorProfileOrderByWithRelationInput | DoctorProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DoctorProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DoctorProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DoctorProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DoctorProfiles
+    **/
+    _count?: true | DoctorProfileCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DoctorProfileMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DoctorProfileMaxAggregateInputType
+  }
+
+  export type GetDoctorProfileAggregateType<T extends DoctorProfileAggregateArgs> = {
+        [P in keyof T & keyof AggregateDoctorProfile]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDoctorProfile[P]>
+      : GetScalarType<T[P], AggregateDoctorProfile[P]>
+  }
+
+
+
+
+  export type DoctorProfileGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DoctorProfileWhereInput
+    orderBy?: DoctorProfileOrderByWithAggregationInput | DoctorProfileOrderByWithAggregationInput[]
+    by: DoctorProfileScalarFieldEnum[] | DoctorProfileScalarFieldEnum
+    having?: DoctorProfileScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DoctorProfileCountAggregateInputType | true
+    _min?: DoctorProfileMinAggregateInputType
+    _max?: DoctorProfileMaxAggregateInputType
+  }
+
+  export type DoctorProfileGroupByOutputType = {
+    id: string
+    isim_unvan: string
+    uzmanlik_alani: string | null
+    unvan_detay: string | null
+    adres: JsonValue | null
+    iletisim: JsonValue | null
+    pratisen_ozellikleri: string | null
+    konum_bilgisi: JsonValue | null
+    slug: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DoctorProfileCountAggregateOutputType | null
+    _min: DoctorProfileMinAggregateOutputType | null
+    _max: DoctorProfileMaxAggregateOutputType | null
+  }
+
+  type GetDoctorProfileGroupByPayload<T extends DoctorProfileGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DoctorProfileGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DoctorProfileGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DoctorProfileGroupByOutputType[P]>
+            : GetScalarType<T[P], DoctorProfileGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DoctorProfileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    isim_unvan?: boolean
+    uzmanlik_alani?: boolean
+    unvan_detay?: boolean
+    adres?: boolean
+    iletisim?: boolean
+    pratisen_ozellikleri?: boolean
+    konum_bilgisi?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["doctorProfile"]>
+
+  export type DoctorProfileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    isim_unvan?: boolean
+    uzmanlik_alani?: boolean
+    unvan_detay?: boolean
+    adres?: boolean
+    iletisim?: boolean
+    pratisen_ozellikleri?: boolean
+    konum_bilgisi?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["doctorProfile"]>
+
+  export type DoctorProfileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    isim_unvan?: boolean
+    uzmanlik_alani?: boolean
+    unvan_detay?: boolean
+    adres?: boolean
+    iletisim?: boolean
+    pratisen_ozellikleri?: boolean
+    konum_bilgisi?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["doctorProfile"]>
+
+  export type DoctorProfileSelectScalar = {
+    id?: boolean
+    isim_unvan?: boolean
+    uzmanlik_alani?: boolean
+    unvan_detay?: boolean
+    adres?: boolean
+    iletisim?: boolean
+    pratisen_ozellikleri?: boolean
+    konum_bilgisi?: boolean
+    slug?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DoctorProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "isim_unvan" | "uzmanlik_alani" | "unvan_detay" | "adres" | "iletisim" | "pratisen_ozellikleri" | "konum_bilgisi" | "slug" | "createdAt" | "updatedAt", ExtArgs["result"]["doctorProfile"]>
+
+  export type $DoctorProfilePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DoctorProfile"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      isim_unvan: string
+      uzmanlik_alani: string | null
+      unvan_detay: string | null
+      adres: Prisma.JsonValue | null
+      iletisim: Prisma.JsonValue | null
+      pratisen_ozellikleri: string | null
+      konum_bilgisi: Prisma.JsonValue | null
+      slug: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["doctorProfile"]>
+    composites: {}
+  }
+
+  type DoctorProfileGetPayload<S extends boolean | null | undefined | DoctorProfileDefaultArgs> = $Result.GetResult<Prisma.$DoctorProfilePayload, S>
+
+  type DoctorProfileCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DoctorProfileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DoctorProfileCountAggregateInputType | true
+    }
+
+  export interface DoctorProfileDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DoctorProfile'], meta: { name: 'DoctorProfile' } }
+    /**
+     * Find zero or one DoctorProfile that matches the filter.
+     * @param {DoctorProfileFindUniqueArgs} args - Arguments to find a DoctorProfile
+     * @example
+     * // Get one DoctorProfile
+     * const doctorProfile = await prisma.doctorProfile.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DoctorProfileFindUniqueArgs>(args: SelectSubset<T, DoctorProfileFindUniqueArgs<ExtArgs>>): Prisma__DoctorProfileClient<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DoctorProfile that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DoctorProfileFindUniqueOrThrowArgs} args - Arguments to find a DoctorProfile
+     * @example
+     * // Get one DoctorProfile
+     * const doctorProfile = await prisma.doctorProfile.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DoctorProfileFindUniqueOrThrowArgs>(args: SelectSubset<T, DoctorProfileFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DoctorProfileClient<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DoctorProfile that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorProfileFindFirstArgs} args - Arguments to find a DoctorProfile
+     * @example
+     * // Get one DoctorProfile
+     * const doctorProfile = await prisma.doctorProfile.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DoctorProfileFindFirstArgs>(args?: SelectSubset<T, DoctorProfileFindFirstArgs<ExtArgs>>): Prisma__DoctorProfileClient<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DoctorProfile that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorProfileFindFirstOrThrowArgs} args - Arguments to find a DoctorProfile
+     * @example
+     * // Get one DoctorProfile
+     * const doctorProfile = await prisma.doctorProfile.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DoctorProfileFindFirstOrThrowArgs>(args?: SelectSubset<T, DoctorProfileFindFirstOrThrowArgs<ExtArgs>>): Prisma__DoctorProfileClient<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DoctorProfiles that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorProfileFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DoctorProfiles
+     * const doctorProfiles = await prisma.doctorProfile.findMany()
+     * 
+     * // Get first 10 DoctorProfiles
+     * const doctorProfiles = await prisma.doctorProfile.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const doctorProfileWithIdOnly = await prisma.doctorProfile.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DoctorProfileFindManyArgs>(args?: SelectSubset<T, DoctorProfileFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DoctorProfile.
+     * @param {DoctorProfileCreateArgs} args - Arguments to create a DoctorProfile.
+     * @example
+     * // Create one DoctorProfile
+     * const DoctorProfile = await prisma.doctorProfile.create({
+     *   data: {
+     *     // ... data to create a DoctorProfile
+     *   }
+     * })
+     * 
+     */
+    create<T extends DoctorProfileCreateArgs>(args: SelectSubset<T, DoctorProfileCreateArgs<ExtArgs>>): Prisma__DoctorProfileClient<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DoctorProfiles.
+     * @param {DoctorProfileCreateManyArgs} args - Arguments to create many DoctorProfiles.
+     * @example
+     * // Create many DoctorProfiles
+     * const doctorProfile = await prisma.doctorProfile.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DoctorProfileCreateManyArgs>(args?: SelectSubset<T, DoctorProfileCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DoctorProfiles and returns the data saved in the database.
+     * @param {DoctorProfileCreateManyAndReturnArgs} args - Arguments to create many DoctorProfiles.
+     * @example
+     * // Create many DoctorProfiles
+     * const doctorProfile = await prisma.doctorProfile.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DoctorProfiles and only return the `id`
+     * const doctorProfileWithIdOnly = await prisma.doctorProfile.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DoctorProfileCreateManyAndReturnArgs>(args?: SelectSubset<T, DoctorProfileCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DoctorProfile.
+     * @param {DoctorProfileDeleteArgs} args - Arguments to delete one DoctorProfile.
+     * @example
+     * // Delete one DoctorProfile
+     * const DoctorProfile = await prisma.doctorProfile.delete({
+     *   where: {
+     *     // ... filter to delete one DoctorProfile
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DoctorProfileDeleteArgs>(args: SelectSubset<T, DoctorProfileDeleteArgs<ExtArgs>>): Prisma__DoctorProfileClient<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DoctorProfile.
+     * @param {DoctorProfileUpdateArgs} args - Arguments to update one DoctorProfile.
+     * @example
+     * // Update one DoctorProfile
+     * const doctorProfile = await prisma.doctorProfile.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DoctorProfileUpdateArgs>(args: SelectSubset<T, DoctorProfileUpdateArgs<ExtArgs>>): Prisma__DoctorProfileClient<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DoctorProfiles.
+     * @param {DoctorProfileDeleteManyArgs} args - Arguments to filter DoctorProfiles to delete.
+     * @example
+     * // Delete a few DoctorProfiles
+     * const { count } = await prisma.doctorProfile.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DoctorProfileDeleteManyArgs>(args?: SelectSubset<T, DoctorProfileDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DoctorProfiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorProfileUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DoctorProfiles
+     * const doctorProfile = await prisma.doctorProfile.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DoctorProfileUpdateManyArgs>(args: SelectSubset<T, DoctorProfileUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DoctorProfiles and returns the data updated in the database.
+     * @param {DoctorProfileUpdateManyAndReturnArgs} args - Arguments to update many DoctorProfiles.
+     * @example
+     * // Update many DoctorProfiles
+     * const doctorProfile = await prisma.doctorProfile.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DoctorProfiles and only return the `id`
+     * const doctorProfileWithIdOnly = await prisma.doctorProfile.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DoctorProfileUpdateManyAndReturnArgs>(args: SelectSubset<T, DoctorProfileUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DoctorProfile.
+     * @param {DoctorProfileUpsertArgs} args - Arguments to update or create a DoctorProfile.
+     * @example
+     * // Update or create a DoctorProfile
+     * const doctorProfile = await prisma.doctorProfile.upsert({
+     *   create: {
+     *     // ... data to create a DoctorProfile
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DoctorProfile we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DoctorProfileUpsertArgs>(args: SelectSubset<T, DoctorProfileUpsertArgs<ExtArgs>>): Prisma__DoctorProfileClient<$Result.GetResult<Prisma.$DoctorProfilePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DoctorProfiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorProfileCountArgs} args - Arguments to filter DoctorProfiles to count.
+     * @example
+     * // Count the number of DoctorProfiles
+     * const count = await prisma.doctorProfile.count({
+     *   where: {
+     *     // ... the filter for the DoctorProfiles we want to count
+     *   }
+     * })
+    **/
+    count<T extends DoctorProfileCountArgs>(
+      args?: Subset<T, DoctorProfileCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DoctorProfileCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DoctorProfile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorProfileAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DoctorProfileAggregateArgs>(args: Subset<T, DoctorProfileAggregateArgs>): Prisma.PrismaPromise<GetDoctorProfileAggregateType<T>>
+
+    /**
+     * Group by DoctorProfile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DoctorProfileGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DoctorProfileGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DoctorProfileGroupByArgs['orderBy'] }
+        : { orderBy?: DoctorProfileGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DoctorProfileGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDoctorProfileGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DoctorProfile model
+   */
+  readonly fields: DoctorProfileFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DoctorProfile.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DoctorProfileClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DoctorProfile model
+   */
+  interface DoctorProfileFieldRefs {
+    readonly id: FieldRef<"DoctorProfile", 'String'>
+    readonly isim_unvan: FieldRef<"DoctorProfile", 'String'>
+    readonly uzmanlik_alani: FieldRef<"DoctorProfile", 'String'>
+    readonly unvan_detay: FieldRef<"DoctorProfile", 'String'>
+    readonly adres: FieldRef<"DoctorProfile", 'Json'>
+    readonly iletisim: FieldRef<"DoctorProfile", 'Json'>
+    readonly pratisen_ozellikleri: FieldRef<"DoctorProfile", 'String'>
+    readonly konum_bilgisi: FieldRef<"DoctorProfile", 'Json'>
+    readonly slug: FieldRef<"DoctorProfile", 'String'>
+    readonly createdAt: FieldRef<"DoctorProfile", 'DateTime'>
+    readonly updatedAt: FieldRef<"DoctorProfile", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DoctorProfile findUnique
+   */
+  export type DoctorProfileFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * Filter, which DoctorProfile to fetch.
+     */
+    where: DoctorProfileWhereUniqueInput
+  }
+
+  /**
+   * DoctorProfile findUniqueOrThrow
+   */
+  export type DoctorProfileFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * Filter, which DoctorProfile to fetch.
+     */
+    where: DoctorProfileWhereUniqueInput
+  }
+
+  /**
+   * DoctorProfile findFirst
+   */
+  export type DoctorProfileFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * Filter, which DoctorProfile to fetch.
+     */
+    where?: DoctorProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DoctorProfiles to fetch.
+     */
+    orderBy?: DoctorProfileOrderByWithRelationInput | DoctorProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DoctorProfiles.
+     */
+    cursor?: DoctorProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DoctorProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DoctorProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DoctorProfiles.
+     */
+    distinct?: DoctorProfileScalarFieldEnum | DoctorProfileScalarFieldEnum[]
+  }
+
+  /**
+   * DoctorProfile findFirstOrThrow
+   */
+  export type DoctorProfileFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * Filter, which DoctorProfile to fetch.
+     */
+    where?: DoctorProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DoctorProfiles to fetch.
+     */
+    orderBy?: DoctorProfileOrderByWithRelationInput | DoctorProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DoctorProfiles.
+     */
+    cursor?: DoctorProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DoctorProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DoctorProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DoctorProfiles.
+     */
+    distinct?: DoctorProfileScalarFieldEnum | DoctorProfileScalarFieldEnum[]
+  }
+
+  /**
+   * DoctorProfile findMany
+   */
+  export type DoctorProfileFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * Filter, which DoctorProfiles to fetch.
+     */
+    where?: DoctorProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DoctorProfiles to fetch.
+     */
+    orderBy?: DoctorProfileOrderByWithRelationInput | DoctorProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DoctorProfiles.
+     */
+    cursor?: DoctorProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DoctorProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DoctorProfiles.
+     */
+    skip?: number
+    distinct?: DoctorProfileScalarFieldEnum | DoctorProfileScalarFieldEnum[]
+  }
+
+  /**
+   * DoctorProfile create
+   */
+  export type DoctorProfileCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DoctorProfile.
+     */
+    data: XOR<DoctorProfileCreateInput, DoctorProfileUncheckedCreateInput>
+  }
+
+  /**
+   * DoctorProfile createMany
+   */
+  export type DoctorProfileCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DoctorProfiles.
+     */
+    data: DoctorProfileCreateManyInput | DoctorProfileCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DoctorProfile createManyAndReturn
+   */
+  export type DoctorProfileCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * The data used to create many DoctorProfiles.
+     */
+    data: DoctorProfileCreateManyInput | DoctorProfileCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DoctorProfile update
+   */
+  export type DoctorProfileUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DoctorProfile.
+     */
+    data: XOR<DoctorProfileUpdateInput, DoctorProfileUncheckedUpdateInput>
+    /**
+     * Choose, which DoctorProfile to update.
+     */
+    where: DoctorProfileWhereUniqueInput
+  }
+
+  /**
+   * DoctorProfile updateMany
+   */
+  export type DoctorProfileUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DoctorProfiles.
+     */
+    data: XOR<DoctorProfileUpdateManyMutationInput, DoctorProfileUncheckedUpdateManyInput>
+    /**
+     * Filter which DoctorProfiles to update
+     */
+    where?: DoctorProfileWhereInput
+    /**
+     * Limit how many DoctorProfiles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DoctorProfile updateManyAndReturn
+   */
+  export type DoctorProfileUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * The data used to update DoctorProfiles.
+     */
+    data: XOR<DoctorProfileUpdateManyMutationInput, DoctorProfileUncheckedUpdateManyInput>
+    /**
+     * Filter which DoctorProfiles to update
+     */
+    where?: DoctorProfileWhereInput
+    /**
+     * Limit how many DoctorProfiles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DoctorProfile upsert
+   */
+  export type DoctorProfileUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DoctorProfile to update in case it exists.
+     */
+    where: DoctorProfileWhereUniqueInput
+    /**
+     * In case the DoctorProfile found by the `where` argument doesn't exist, create a new DoctorProfile with this data.
+     */
+    create: XOR<DoctorProfileCreateInput, DoctorProfileUncheckedCreateInput>
+    /**
+     * In case the DoctorProfile was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DoctorProfileUpdateInput, DoctorProfileUncheckedUpdateInput>
+  }
+
+  /**
+   * DoctorProfile delete
+   */
+  export type DoctorProfileDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+    /**
+     * Filter which DoctorProfile to delete.
+     */
+    where: DoctorProfileWhereUniqueInput
+  }
+
+  /**
+   * DoctorProfile deleteMany
+   */
+  export type DoctorProfileDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DoctorProfiles to delete
+     */
+    where?: DoctorProfileWhereInput
+    /**
+     * Limit how many DoctorProfiles to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DoctorProfile without action
+   */
+  export type DoctorProfileDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DoctorProfile
+     */
+    select?: DoctorProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DoctorProfile
+     */
+    omit?: DoctorProfileOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -18988,6 +20140,23 @@ export namespace Prisma {
   };
 
   export type DoctorTestimonialScalarFieldEnum = (typeof DoctorTestimonialScalarFieldEnum)[keyof typeof DoctorTestimonialScalarFieldEnum]
+
+
+  export const DoctorProfileScalarFieldEnum: {
+    id: 'id',
+    isim_unvan: 'isim_unvan',
+    uzmanlik_alani: 'uzmanlik_alani',
+    unvan_detay: 'unvan_detay',
+    adres: 'adres',
+    iletisim: 'iletisim',
+    pratisen_ozellikleri: 'pratisen_ozellikleri',
+    konum_bilgisi: 'konum_bilgisi',
+    slug: 'slug',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DoctorProfileScalarFieldEnum = (typeof DoctorProfileScalarFieldEnum)[keyof typeof DoctorProfileScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -20161,6 +21330,88 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"DoctorTestimonial"> | Date | string
   }
 
+  export type DoctorProfileWhereInput = {
+    AND?: DoctorProfileWhereInput | DoctorProfileWhereInput[]
+    OR?: DoctorProfileWhereInput[]
+    NOT?: DoctorProfileWhereInput | DoctorProfileWhereInput[]
+    id?: StringFilter<"DoctorProfile"> | string
+    isim_unvan?: StringFilter<"DoctorProfile"> | string
+    uzmanlik_alani?: StringNullableFilter<"DoctorProfile"> | string | null
+    unvan_detay?: StringNullableFilter<"DoctorProfile"> | string | null
+    adres?: JsonNullableFilter<"DoctorProfile">
+    iletisim?: JsonNullableFilter<"DoctorProfile">
+    pratisen_ozellikleri?: StringNullableFilter<"DoctorProfile"> | string | null
+    konum_bilgisi?: JsonNullableFilter<"DoctorProfile">
+    slug?: StringNullableFilter<"DoctorProfile"> | string | null
+    createdAt?: DateTimeFilter<"DoctorProfile"> | Date | string
+    updatedAt?: DateTimeFilter<"DoctorProfile"> | Date | string
+  }
+
+  export type DoctorProfileOrderByWithRelationInput = {
+    id?: SortOrder
+    isim_unvan?: SortOrder
+    uzmanlik_alani?: SortOrderInput | SortOrder
+    unvan_detay?: SortOrderInput | SortOrder
+    adres?: SortOrderInput | SortOrder
+    iletisim?: SortOrderInput | SortOrder
+    pratisen_ozellikleri?: SortOrderInput | SortOrder
+    konum_bilgisi?: SortOrderInput | SortOrder
+    slug?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DoctorProfileWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    slug?: string
+    AND?: DoctorProfileWhereInput | DoctorProfileWhereInput[]
+    OR?: DoctorProfileWhereInput[]
+    NOT?: DoctorProfileWhereInput | DoctorProfileWhereInput[]
+    isim_unvan?: StringFilter<"DoctorProfile"> | string
+    uzmanlik_alani?: StringNullableFilter<"DoctorProfile"> | string | null
+    unvan_detay?: StringNullableFilter<"DoctorProfile"> | string | null
+    adres?: JsonNullableFilter<"DoctorProfile">
+    iletisim?: JsonNullableFilter<"DoctorProfile">
+    pratisen_ozellikleri?: StringNullableFilter<"DoctorProfile"> | string | null
+    konum_bilgisi?: JsonNullableFilter<"DoctorProfile">
+    createdAt?: DateTimeFilter<"DoctorProfile"> | Date | string
+    updatedAt?: DateTimeFilter<"DoctorProfile"> | Date | string
+  }, "id" | "slug">
+
+  export type DoctorProfileOrderByWithAggregationInput = {
+    id?: SortOrder
+    isim_unvan?: SortOrder
+    uzmanlik_alani?: SortOrderInput | SortOrder
+    unvan_detay?: SortOrderInput | SortOrder
+    adres?: SortOrderInput | SortOrder
+    iletisim?: SortOrderInput | SortOrder
+    pratisen_ozellikleri?: SortOrderInput | SortOrder
+    konum_bilgisi?: SortOrderInput | SortOrder
+    slug?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DoctorProfileCountOrderByAggregateInput
+    _max?: DoctorProfileMaxOrderByAggregateInput
+    _min?: DoctorProfileMinOrderByAggregateInput
+  }
+
+  export type DoctorProfileScalarWhereWithAggregatesInput = {
+    AND?: DoctorProfileScalarWhereWithAggregatesInput | DoctorProfileScalarWhereWithAggregatesInput[]
+    OR?: DoctorProfileScalarWhereWithAggregatesInput[]
+    NOT?: DoctorProfileScalarWhereWithAggregatesInput | DoctorProfileScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DoctorProfile"> | string
+    isim_unvan?: StringWithAggregatesFilter<"DoctorProfile"> | string
+    uzmanlik_alani?: StringNullableWithAggregatesFilter<"DoctorProfile"> | string | null
+    unvan_detay?: StringNullableWithAggregatesFilter<"DoctorProfile"> | string | null
+    adres?: JsonNullableWithAggregatesFilter<"DoctorProfile">
+    iletisim?: JsonNullableWithAggregatesFilter<"DoctorProfile">
+    pratisen_ozellikleri?: StringNullableWithAggregatesFilter<"DoctorProfile"> | string | null
+    konum_bilgisi?: JsonNullableWithAggregatesFilter<"DoctorProfile">
+    slug?: StringNullableWithAggregatesFilter<"DoctorProfile"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"DoctorProfile"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DoctorProfile"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -21317,6 +22568,104 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DoctorProfileCreateInput = {
+    id?: string
+    isim_unvan: string
+    uzmanlik_alani?: string | null
+    unvan_detay?: string | null
+    adres?: NullableJsonNullValueInput | InputJsonValue
+    iletisim?: NullableJsonNullValueInput | InputJsonValue
+    pratisen_ozellikleri?: string | null
+    konum_bilgisi?: NullableJsonNullValueInput | InputJsonValue
+    slug?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DoctorProfileUncheckedCreateInput = {
+    id?: string
+    isim_unvan: string
+    uzmanlik_alani?: string | null
+    unvan_detay?: string | null
+    adres?: NullableJsonNullValueInput | InputJsonValue
+    iletisim?: NullableJsonNullValueInput | InputJsonValue
+    pratisen_ozellikleri?: string | null
+    konum_bilgisi?: NullableJsonNullValueInput | InputJsonValue
+    slug?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DoctorProfileUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    isim_unvan?: StringFieldUpdateOperationsInput | string
+    uzmanlik_alani?: NullableStringFieldUpdateOperationsInput | string | null
+    unvan_detay?: NullableStringFieldUpdateOperationsInput | string | null
+    adres?: NullableJsonNullValueInput | InputJsonValue
+    iletisim?: NullableJsonNullValueInput | InputJsonValue
+    pratisen_ozellikleri?: NullableStringFieldUpdateOperationsInput | string | null
+    konum_bilgisi?: NullableJsonNullValueInput | InputJsonValue
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DoctorProfileUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    isim_unvan?: StringFieldUpdateOperationsInput | string
+    uzmanlik_alani?: NullableStringFieldUpdateOperationsInput | string | null
+    unvan_detay?: NullableStringFieldUpdateOperationsInput | string | null
+    adres?: NullableJsonNullValueInput | InputJsonValue
+    iletisim?: NullableJsonNullValueInput | InputJsonValue
+    pratisen_ozellikleri?: NullableStringFieldUpdateOperationsInput | string | null
+    konum_bilgisi?: NullableJsonNullValueInput | InputJsonValue
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DoctorProfileCreateManyInput = {
+    id?: string
+    isim_unvan: string
+    uzmanlik_alani?: string | null
+    unvan_detay?: string | null
+    adres?: NullableJsonNullValueInput | InputJsonValue
+    iletisim?: NullableJsonNullValueInput | InputJsonValue
+    pratisen_ozellikleri?: string | null
+    konum_bilgisi?: NullableJsonNullValueInput | InputJsonValue
+    slug?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DoctorProfileUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    isim_unvan?: StringFieldUpdateOperationsInput | string
+    uzmanlik_alani?: NullableStringFieldUpdateOperationsInput | string | null
+    unvan_detay?: NullableStringFieldUpdateOperationsInput | string | null
+    adres?: NullableJsonNullValueInput | InputJsonValue
+    iletisim?: NullableJsonNullValueInput | InputJsonValue
+    pratisen_ozellikleri?: NullableStringFieldUpdateOperationsInput | string | null
+    konum_bilgisi?: NullableJsonNullValueInput | InputJsonValue
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DoctorProfileUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    isim_unvan?: StringFieldUpdateOperationsInput | string
+    uzmanlik_alani?: NullableStringFieldUpdateOperationsInput | string | null
+    unvan_detay?: NullableStringFieldUpdateOperationsInput | string | null
+    adres?: NullableJsonNullValueInput | InputJsonValue
+    iletisim?: NullableJsonNullValueInput | InputJsonValue
+    pratisen_ozellikleri?: NullableStringFieldUpdateOperationsInput | string | null
+    konum_bilgisi?: NullableJsonNullValueInput | InputJsonValue
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -22169,6 +23518,42 @@ export namespace Prisma {
     unvan?: SortOrder
     image?: SortOrder
     testimonial?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DoctorProfileCountOrderByAggregateInput = {
+    id?: SortOrder
+    isim_unvan?: SortOrder
+    uzmanlik_alani?: SortOrder
+    unvan_detay?: SortOrder
+    adres?: SortOrder
+    iletisim?: SortOrder
+    pratisen_ozellikleri?: SortOrder
+    konum_bilgisi?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DoctorProfileMaxOrderByAggregateInput = {
+    id?: SortOrder
+    isim_unvan?: SortOrder
+    uzmanlik_alani?: SortOrder
+    unvan_detay?: SortOrder
+    pratisen_ozellikleri?: SortOrder
+    slug?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DoctorProfileMinOrderByAggregateInput = {
+    id?: SortOrder
+    isim_unvan?: SortOrder
+    uzmanlik_alani?: SortOrder
+    unvan_detay?: SortOrder
+    pratisen_ozellikleri?: SortOrder
+    slug?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }

@@ -31,6 +31,10 @@ function toSlug(text: string, separator: string = '_') {
     .toLowerCase();
 }
 
+function toCamelCase(str: string) {
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
 async function main() {
   console.log('\n🚀 OrthoDigi Otonom CRUD Jeneratörüne Hoş Geldiniz!\n');
 
@@ -38,6 +42,7 @@ async function main() {
   const modelNameInput = await rl.question('Model ismi nedir? (Örn: Product, Category): ');
   const modelName = modelNameInput.charAt(0).toUpperCase() + modelNameInput.slice(1);
   const modelNameLower = modelName.toLowerCase();
+  const modelLabel = await rl.question(`Model etiketi (Sidebar'da görünecek isim) [${modelName}]: `) || modelName;
 
   // 2. Alanları Al
   const fields: Field[] = [];
@@ -111,6 +116,14 @@ async function main() {
     await generateNuxtPage(modelName, fields);
     console.log('✅ Nuxt sayfası oluşturuldu.');
 
+    // 7. Navigasyonu Güncelle
+    await updateNavigation(modelName, modelLabel);
+    console.log('✅ Sidebar navigasyonu güncellendi.');
+
+    // 8. İzinleri Kaydet
+    await updatePermissions(modelName);
+    console.log('✅ İzinler sisteme kaydedildi.');
+
     console.log('\n🔄 Prisma istemcisi güncelleniyor ve migrasyon hazırlanıyor...');
     // Not: Gerçek bir ortamda bunu kullanıcıya sormak daha güvenli olabilir
     // execSync('npx prisma generate', { stdio: 'inherit' });
@@ -125,6 +138,60 @@ async function main() {
     console.error('\n❌ Bir hata oluştu:', error);
   } finally {
     rl.close();
+  }
+}
+
+async function updatePermissions(modelName: string) {
+  const permPath = path.join(process.cwd(), 'server/utils/permissions.ts');
+  let content = await fs.readFile(permPath, 'utf-8');
+
+  const modelUpper = modelName.toUpperCase();
+  const modelLower = modelName.toLowerCase();
+
+  const newPermEntry = `    ${modelUpper}: {
+        READ: '${modelLower}:read',
+        WRITE: '${modelLower}:write',
+        DELETE: '${modelLower}:delete',
+    },
+`;
+
+  // PERMISSIONS objesinin içine ekle
+  if (!content.includes(`${modelUpper}: {`)) {
+    const lastBraceIndex = content.lastIndexOf('} as const;');
+    content = content.slice(0, lastBraceIndex) + newPermEntry + content.slice(lastBraceIndex);
+
+    // ALL_PERMISSIONS dizisine ekle
+    const allPermsStart = content.indexOf('export const ALL_PERMISSIONS = [');
+    const allPermsEnd = content.indexOf('];', allPermsStart);
+    const newAllPermLine = `    ...Object.values(PERMISSIONS.${modelUpper}),\n`;
+    content = content.slice(0, allPermsEnd) + newAllPermLine + content.slice(allPermsEnd);
+
+    await fs.writeFile(permPath, content);
+  }
+}
+
+async function updateNavigation(modelName: string, modelLabel: string) {
+  const navPath = path.join(process.cwd(), 'app/constants/navigation.ts');
+  let content = await fs.readFile(navPath, 'utf-8');
+
+  const modelLower = modelName.toLowerCase();
+  const newLink = `        {
+          label: '${modelLabel}',
+          to: '/admin/${modelLower}',
+          icon: 'i-lucide-database'
+        },`;
+
+  // İçerik Yönetimi children dizisinin sonuna ekle
+  if (content.includes('label: \'İçerik Yönetimi\'')) {
+    const sectionStart = content.indexOf('label: \'İçerik Yönetimi\'');
+    const childrenStart = content.indexOf('children: [', sectionStart);
+    const childrenEnd = content.indexOf(']', childrenStart);
+
+    // Zaten var mı kontrol et
+    if (!content.includes(`/admin/${modelLower}`)) {
+      const updatedContent = content.slice(0, childrenEnd) + newLink + content.slice(childrenEnd);
+      await fs.writeFile(navPath, updatedContent);
+    }
   }
 }
 
@@ -163,40 +230,41 @@ async function updatePrismaSchema(modelName: string, fields: Field[]) {
 async function generateService(modelName: string, fields: Field[]) {
   const serviceDir = path.join(process.cwd(), 'server/services');
   const servicePath = path.join(serviceDir, `${modelName.toLowerCase()}.service.ts`);
+  const prismaModel = toCamelCase(modelName);
   
   const content = `import { prisma } from '../utils/prisma';
 import type { Prisma } from '@prisma/client';
 
 export class ${modelName}Service {
   static async getAll() {
-    return await (prisma as any).${modelName.toLowerCase()}.findMany({
+    return await (prisma as any).${prismaModel}.findMany({
       orderBy: { createdAt: 'desc' }
     });
   }
 
   static async getById(id: string) {
-    return await (prisma as any).${modelName.toLowerCase()}.findUnique({
+    return await (prisma as any).${prismaModel}.findUnique({
       where: { id }
     });
   }
 
   static async create(data: any) {
     const { id, createdAt, updatedAt, ...rest } = data;
-    return await (prisma as any).${modelName.toLowerCase()}.create({
+    return await (prisma as any).${prismaModel}.create({
       data: rest
     });
   }
 
   static async update(id: string, data: any) {
     const { id: _, createdAt, updatedAt, ...rest } = data;
-    return await (prisma as any).${modelName.toLowerCase()}.update({
+    return await (prisma as any).${prismaModel}.update({
       where: { id },
       data: rest
     });
   }
 
   static async delete(id: string) {
-    return await (prisma as any).${modelName.toLowerCase()}.delete({
+    return await (prisma as any).${prismaModel}.delete({
       where: { id }
     });
   }
@@ -209,23 +277,24 @@ export class ${modelName}Service {
 async function generateApiRoutes(modelName: string, fields: Field[]) {
   const apiBaseDir = path.join(process.cwd(), `server/api/admin/${modelName.toLowerCase()}`);
   await fs.mkdir(apiBaseDir, { recursive: true });
+  const modelLower = modelName.toLowerCase();
 
   // index.get.ts (List)
   await fs.writeFile(path.join(apiBaseDir, 'index.get.ts'), `import { ${modelName}Service } from '../../../services/${modelName.toLowerCase()}.service';
-import { protect } from '../../../utils/protect';
+import { requirePermission } from '../../../utils/protect';
 
 export default defineEventHandler(async (event) => {
-  await protect(event);
+  await requirePermission(event, '${modelLower}:read');
   return await ${modelName}Service.getAll();
 });
 `);
 
   // index.post.ts (Create)
   await fs.writeFile(path.join(apiBaseDir, 'index.post.ts'), `import { ${modelName}Service } from '../../../services/${modelName.toLowerCase()}.service';
-import { protect } from '../../../utils/protect';
+import { requirePermission } from '../../../utils/protect';
 
 export default defineEventHandler(async (event) => {
-  await protect(event);
+  await requirePermission(event, '${modelLower}:write');
   const body = await readBody(event);
   return await ${modelName}Service.create(body);
 });
@@ -233,10 +302,10 @@ export default defineEventHandler(async (event) => {
 
   // [id].get.ts (Detail)
   await fs.writeFile(path.join(apiBaseDir, '[id].get.ts'), `import { ${modelName}Service } from '../../../services/${modelName.toLowerCase()}.service';
-import { protect } from '../../../utils/protect';
+import { requirePermission } from '../../../utils/protect';
 
 export default defineEventHandler(async (event) => {
-  await protect(event);
+  await requirePermission(event, '${modelLower}:read');
   const id = getRouterParam(event, 'id');
   if (!id) throw createError({ statusCode: 400, message: 'ID missing' });
   return await ${modelName}Service.getById(id);
@@ -245,10 +314,10 @@ export default defineEventHandler(async (event) => {
 
   // [id].put.ts (Update)
   await fs.writeFile(path.join(apiBaseDir, '[id].put.ts'), `import { ${modelName}Service } from '../../../services/${modelName.toLowerCase()}.service';
-import { protect } from '../../../utils/protect';
+import { requirePermission } from '../../../utils/protect';
 
 export default defineEventHandler(async (event) => {
-  await protect(event);
+  await requirePermission(event, '${modelLower}:write');
   const id = getRouterParam(event, 'id');
   const body = await readBody(event);
   if (!id) throw createError({ statusCode: 400, message: 'ID missing' });
@@ -258,10 +327,10 @@ export default defineEventHandler(async (event) => {
 
   // [id].delete.ts (Delete)
   await fs.writeFile(path.join(apiBaseDir, '[id].delete.ts'), `import { ${modelName}Service } from '../../../services/${modelName.toLowerCase()}.service';
-import { protect } from '../../../utils/protect';
+import { requirePermission } from '../../../utils/protect';
 
 export default defineEventHandler(async (event) => {
-  await protect(event);
+  await requirePermission(event, '${modelLower}:delete');
   const id = getRouterParam(event, 'id');
   if (!id) throw createError({ statusCode: 400, message: 'ID missing' });
   return await ${modelName}Service.delete(id);

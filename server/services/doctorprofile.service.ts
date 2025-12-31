@@ -1,36 +1,36 @@
 import { prisma } from '../utils/prisma';
 import type { Prisma } from '@prisma/client';
 
-export class DoctorTestimonialService {
+export class DoctorProfileService {
   static async getAll() {
-    return await (prisma as any).doctorTestimonial.findMany({
+    return await (prisma as any).doctorProfile.findMany({
       orderBy: { createdAt: 'desc' }
     });
   }
 
   static async getById(id: string) {
-    return await (prisma as any).doctorTestimonial.findUnique({
+    return await (prisma as any).doctorProfile.findUnique({
       where: { id }
     });
   }
 
   static async create(data: any) {
     const { id, createdAt, updatedAt, ...rest } = data;
-    return await (prisma as any).doctorTestimonial.create({
+    return await (prisma as any).doctorProfile.create({
       data: rest
     });
   }
 
   static async update(id: string, data: any) {
     const { id: _, createdAt, updatedAt, ...rest } = data;
-    return await (prisma as any).doctorTestimonial.update({
+    return await (prisma as any).doctorProfile.update({
       where: { id },
       data: rest
     });
   }
 
   static async delete(id: string) {
-    return await (prisma as any).doctorTestimonial.delete({
+    return await (prisma as any).doctorProfile.delete({
       where: { id }
     });
   }

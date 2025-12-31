@@ -1,7 +1,9 @@
 import { PageService } from '../../../services/page.service'
+import { requirePermission } from '../../../utils/protect'
+import { PERMISSIONS } from '../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
-    // Permission check could be added here
+    await requirePermission(event, PERMISSIONS.PAGES.READ)
     try {
         return await PageService.getAllPages()
     } catch (error) {

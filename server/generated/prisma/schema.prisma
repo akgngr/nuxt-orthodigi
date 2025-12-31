@@ -211,3 +211,19 @@ model DoctorTestimonial {
 
   @@map("doctortestimonial")
 }
+
+model DoctorProfile {
+  id                   String   @id @default(cuid())
+  isim_unvan           String
+  uzmanlik_alani       String?
+  unvan_detay          String?
+  adres                Json?
+  iletisim             Json?
+  pratisen_ozellikleri String?
+  konum_bilgisi        Json?
+  slug                 String?  @unique
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("doctorprofile")
+}

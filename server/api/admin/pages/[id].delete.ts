@@ -1,17 +1,20 @@
 import { PageService } from '../../../services/page.service'
+import { requirePermission } from '../../../utils/protect'
+import { PERMISSIONS } from '../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
+    await requirePermission(event, PERMISSIONS.PAGES.DELETE)
     const id = getRouterParam(event, 'id')
+    
     if (!id) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Page ID is required'
+            statusMessage: 'ID missing'
         })
     }
 
     try {
-        await PageService.deletePage(id)
-        return { success: true }
+        return await PageService.deletePage(id)
     } catch (error) {
         console.error('Failed to delete page:', error)
         throw createError({

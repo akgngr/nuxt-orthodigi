@@ -281,6 +281,20 @@ exports.Prisma.DoctorTestimonialScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.DoctorProfileScalarFieldEnum = {
+  id: 'id',
+  isim_unvan: 'isim_unvan',
+  uzmanlik_alani: 'uzmanlik_alani',
+  unvan_detay: 'unvan_detay',
+  adres: 'adres',
+  iletisim: 'iletisim',
+  pratisen_ozellikleri: 'pratisen_ozellikleri',
+  konum_bilgisi: 'konum_bilgisi',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -327,7 +341,8 @@ exports.Prisma.ModelName = {
   Page: 'Page',
   PageComponent: 'PageComponent',
   Product: 'Product',
-  DoctorTestimonial: 'DoctorTestimonial'
+  DoctorTestimonial: 'DoctorTestimonial',
+  DoctorProfile: 'DoctorProfile'
 };
 
 /**

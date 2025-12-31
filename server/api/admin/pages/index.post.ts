@@ -1,4 +1,6 @@
 import { PageService } from '../../../services/page.service'
+import { requirePermission } from '../../../utils/protect'
+import { PERMISSIONS } from '../../../utils/permissions'
 import { z } from 'zod'
 
 const pageSchema = z.object({
@@ -12,6 +14,7 @@ const pageSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
+    await requirePermission(event, PERMISSIONS.PAGES.WRITE)
     try {
         const body = await readBody(event)
         const validatedData = pageSchema.parse(body)

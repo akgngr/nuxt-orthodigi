@@ -1,9 +1,9 @@
-import { DoctorTestimonialService } from '../../../services/doctortestimonial.service';
+import { DoctorProfileService } from '../../../services/doctorprofile.service';
 import { requirePermission } from '../../../utils/protect';
 
 export default defineEventHandler(async (event) => {
-  await requirePermission(event, 'doctortestimonial:delete');
+  await requirePermission(event, 'doctorprofile:delete');
   const id = getRouterParam(event, 'id');
   if (!id) throw createError({ statusCode: 400, message: 'ID missing' });
-  return await DoctorTestimonialService.delete(id);
+  return await DoctorProfileService.delete(id);
 });
