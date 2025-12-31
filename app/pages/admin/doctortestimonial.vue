@@ -162,7 +162,7 @@ interface DoctorTestimonial {
   updatedAt: string
 }
 
-const { data: blogs, refresh, status } = await useFetch<DoctorTestimonial[]>('/api/admin/doctortestimonial')
+const { data: listData, refresh, status } = await useFetch<DoctorTestimonial[]>('/api/admin/doctortestimonial')
 
 const isDrawerOpen = ref(false)
 const isEditMode = ref(false)
@@ -175,8 +175,15 @@ const state = reactive({
   slug: '',
   unvan: '',
   image: '',
-  social_link: '' as any,
+  social_link: [] as any,
   testimonial: '' as any
+})
+
+// Watch name to auto-generate slug
+watch(() => state.name, (newVal) => {
+  if (!isEditMode.value && newVal) {
+    state.slug = slugify(newVal)
+  }
 })
 
 
@@ -261,15 +268,12 @@ async function deleteItem(id: string) {
   }
 }
 
-const items = computed<DoctorTestimonial[]>(() => ((blogs.value ?? []) as unknown as DoctorTestimonial[]))
+const items = computed<DoctorTestimonial[]>(() => ((listData.value ?? []) as unknown as DoctorTestimonial[]))
 
 const columns: TableColumn<DoctorTestimonial>[] = [
-  { accessorKey: 'name', header: 'name' },
-  { accessorKey: 'slug', header: 'slug' },
-  { accessorKey: 'unvan', header: 'unvan' },
-  { accessorKey: 'image', header: 'image' },
-  { accessorKey: 'social_link', header: 'social_link' },
-  { accessorKey: 'testimonial', header: 'testimonial' },
+  { accessorKey: 'name', header: 'Doktor Adı' },
+  { accessorKey: 'unvan', header: 'Unvan' },
+  { accessorKey: 'image', header: 'Doktor Resmi' },
   { id: 'actions', header: 'İşlemler' }
 ]
 </script>
@@ -334,27 +338,30 @@ const columns: TableColumn<DoctorTestimonial>[] = [
         <div class="p-0 overflow-y-auto max-h-screen bg-white dark:bg-gray-950">
           <UForm :schema="schema" :state="state" @submit="onSubmit" class="flex flex-col min-h-full">
             <div class="p-6 space-y-6 flex-1">
-      <UFormField label="name" name="name">
+      <UFormField label="Doktor Adı" name="name">
         <UInput v-model="state.name" class="w-full shadow-sm" size="md" />
       </UFormField>
 
-      <UFormField label="slug" name="slug">
-        <UInput v-model="state.slug" class="w-full shadow-sm" size="md" />
+      <UFormField label="Slug" name="slug">
+        <template #help>
+          <span class="text-xs text-gray-500">Doktor Adı alanından otomatik oluşturulur.</span>
+        </template>
+        <UInput v-model="state.slug" class="w-full shadow-sm" size="md" placeholder="Otomatik oluşturulur..." />
       </UFormField>
 
-      <UFormField label="unvan" name="unvan">
+      <UFormField label="Unvan" name="unvan">
         <UInput v-model="state.unvan" class="w-full shadow-sm" size="md" />
       </UFormField>
 
-      <UFormField label="image" name="image">
+      <UFormField label="Doktor Resmi" name="image">
         <UInput v-model="state.image" class="w-full shadow-sm" size="md" />
       </UFormField>
 
-      <UFormField label="social_link" name="social_link">
+      <UFormField label="Sosyal Medya Linki" name="social_link">
         <UInput v-model="state.social_link" class="w-full shadow-sm" size="md" />
       </UFormField>
 
-      <UFormField label="testimonial" name="testimonial">
+      <UFormField label="Doktor Yorumu" name="testimonial">
         <template #help>
           <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
             <UIcon name="i-lucide-sparkles" class="w-3.5 h-3.5 text-primary-500" />

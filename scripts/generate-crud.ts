@@ -15,6 +15,7 @@ interface Field {
   isNullable: boolean;
   isUnique: boolean;
   slugSource?: string;
+  inTable: boolean;
 }
 
 function toSlug(text: string, separator: string = '_') {
@@ -73,6 +74,7 @@ async function main() {
 
     const isNullable = (await rl.question('Null olabilir mi? (e/h) [h]: ')).toLowerCase() === 'e';
     const isUnique = fieldType === 'Slug' ? true : (await rl.question('Benzersiz (Unique) mi? (e/h) [h]: ')).toLowerCase() === 'e';
+    const inTable = (await rl.question('Listeleme tablosunda görünsün mü? (e/h) [e]: ')).toLowerCase() !== 'h';
 
     fields.push({
       name: fieldName,
@@ -80,7 +82,8 @@ async function main() {
       type: fieldType,
       isNullable,
       isUnique,
-      slugSource
+      slugSource,
+      inTable
     });
   }
 
@@ -360,13 +363,17 @@ async function generateNuxtPage(modelName: string, fields: Field[]) {
       </UFormField>`;
   }).join('\n\n');
 
-  const tableColumns = fields.map(f => `  { accessorKey: '${f.name}', header: '${f.label}' }`).join(',\n');
+  const tableColumns = fields
+    .filter(f => f.inTable)
+    .map(f => `  { accessorKey: '${f.name}', header: '${f.label}' }`)
+    .join(',\n');
 
   const stateInit = fields.map(f => {
     let val = "''";
     if (f.type === 'Boolean') val = 'false';
     if (f.type === 'Int' || f.type === 'Float') val = '0';
-    if (f.type === 'LongText' || f.type === 'Json' || f.type === 'Slug') val = "'' as any";
+    if (f.type === 'Json') val = "[] as any";
+    if (f.type === 'LongText' || f.type === 'Slug') val = "'' as any";
     return `  ${f.name}: ${val}`;
   }).join(',\n');
 
@@ -562,10 +569,7 @@ function openCreateDrawer() {
   Object.assign(state, {
     id: '',
 ${fields.map(f => {
-    let val = "''";
-    if (f.type === 'Boolean') val = 'false';
-    if (f.type === 'Int' || f.type === 'Float') val = '0';
-    return `    ${f.name}: ${val}`;
+    return `    ${f.name}: ${f.type === 'Boolean' ? 'false' : f.type === 'Int' || f.type === 'Float' ? '0' : f.type === 'Json' ? '[]' : "''"}`;
   }).join(',\n')}
   })
   isDrawerOpen.value = true
@@ -576,7 +580,7 @@ function openEditDrawer(item: ${modelName}) {
   Object.assign(state, {
     id: item.id,
 ${fields.map(f => {
-    return `    ${f.name}: item.${f.name} ?? ${f.type === 'Boolean' ? 'false' : f.type === 'Int' || f.type === 'Float' ? '0' : "''"}`;
+    return `    ${f.name}: item.${f.name} ?? ${f.type === 'Boolean' ? 'false' : f.type === 'Int' || f.type === 'Float' ? '0' : f.type === 'Json' ? '[]' : "''"}`;
   }).join(',\n')}
   })
   isDrawerOpen.value = true
