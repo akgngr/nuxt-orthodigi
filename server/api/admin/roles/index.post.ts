@@ -1,5 +1,7 @@
 import { z } from 'zod'
 import { RoleService } from '../../../services/role.service'
+import { requirePermission } from '../../../utils/protect'
+import { PERMISSIONS } from '../../../utils/permissions'
 
 const createRoleSchema = z.object({
     name: z.string().min(1),
@@ -8,6 +10,8 @@ const createRoleSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
+    await requirePermission(event, PERMISSIONS.ROLES.WRITE)
+
     const body = await readBody(event)
     const result = createRoleSchema.safeParse(body)
 

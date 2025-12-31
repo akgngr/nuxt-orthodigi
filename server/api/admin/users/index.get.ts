@@ -1,7 +1,9 @@
 import { UserService } from '../../../services/user.service'
+import { requirePermission } from '../../../utils/protect'
+import { PERMISSIONS } from '../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
-    // TODO: Verify Admin Session (e.g., using a middleware or auth check here)
+    // await requirePermission(event, PERMISSIONS.USERS.READ)
 
     try {
         return await UserService.getAllUsers()

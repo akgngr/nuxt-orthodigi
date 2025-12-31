@@ -7,10 +7,17 @@ let _auth: any = null;
 export const getAuth = () => {
     if (!_auth) {
         const prisma = getPrisma()
+        const config = useRuntimeConfig()
+        
+        console.log('[Auth] Initializing Better Auth...')
+        console.log('[Auth] BETTER_AUTH_URL:', config.betterAuthUrl)
+        
         _auth = betterAuth({
             database: prismaAdapter(prisma, {
                 provider: "postgresql",
             }),
+            baseURL: (config.betterAuthUrl as string) || "http://localhost:3000",
+            secret: (config.betterAuthSecret as string) || "default-secret-change-me",
             emailAndPassword: {
                 enabled: true
             },

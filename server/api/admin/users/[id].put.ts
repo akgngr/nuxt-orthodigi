@@ -1,5 +1,7 @@
 import { z } from 'zod'
 import { UserService } from '../../../services/user.service'
+import { requirePermission } from '../../../utils/protect'
+import { PERMISSIONS } from '../../../utils/permissions'
 
 const updateUserSchema = z.object({
     name: z.string().optional(),
@@ -7,6 +9,8 @@ const updateUserSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
+    // await requirePermission(event, PERMISSIONS.USERS.WRITE)
+
     const id = getRouterParam(event, 'id')
     if (!id) {
         throw createError({ statusCode: 400, statusMessage: 'Missing user ID' })

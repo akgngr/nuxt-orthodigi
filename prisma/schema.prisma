@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../server/generated/prisma"
 }
 
 datasource db {
@@ -90,6 +91,37 @@ model Appointment {
   updatedAt DateTime @updatedAt
 }
 
+model Blog {
+  id              String          @id @default(cuid())
+  slug            String          @unique
+  titleTag        String
+  metaDescription String?
+  canonicalUrl    String?
+  h1Title         String
+  bodyText        String?
+  jsonLd          Json?
+  featuredImage   String?
+  featuredImageAlt String?
+  components      BlogComponent[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("blog")
+}
+
+model BlogComponent {
+  id        String   @id @default(cuid())
+  type      String // hero, text, gallery, cta, etc.
+  content   Json // Component specific data
+  order     Int      @default(0)
+  blogId    String
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("blog_component")
+}
+
 // RBAC Models
 model Role {
   id          String       @id @default(cuid())
@@ -120,4 +152,62 @@ model UserRole {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, roleId])
+}
+
+model Page {
+  id              String          @id @default(cuid())
+  slug            String          @unique
+  titleTag        String
+  metaDescription String?
+  canonicalUrl    String?
+  h1Title         String
+  bodyText        String?
+  jsonLd          Json?
+  featuredImage   String?
+  featuredImageAlt String?
+  components      PageComponent[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("page")
+}
+
+model PageComponent {
+  id        String   @id @default(cuid())
+  type      String // hero, text, gallery, cta, etc.
+  content   Json // Component specific data
+  order     Int      @default(0)
+  pageId    String
+  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("page_component")
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  title     String?  @unique
+  summery   String
+  slug      String   @unique
+  body      String?
+  media     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("urunler")
+}
+
+model DoctorTestimonial {
+  id        String   @id @default(cuid())
+  name  String @unique
+  slug  String @unique
+  unvan  String
+  image  String
+  social_link  Json
+  testimonial  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("doctortestimonial")
 }

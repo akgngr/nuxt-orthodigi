@@ -1,5 +1,7 @@
 import { z } from 'zod'
 import { UserService } from '../../../services/user.service'
+import { requirePermission } from '../../../utils/protect'
+import { PERMISSIONS } from '../../../utils/permissions'
 
 const createUserSchema = z.object({
     email: z.string().email(),
@@ -9,7 +11,7 @@ const createUserSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-    // TODO: Verify Admin Session
+    // await requirePermission(event, PERMISSIONS.USERS.WRITE)
 
     const body = await readBody(event)
     const result = createUserSchema.safeParse(body)

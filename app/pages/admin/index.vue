@@ -18,7 +18,10 @@ const stats = computed(() => dashboardData.value?.stats || [
   { label: 'Ciro (Aylık)', value: '...', icon: 'i-lucide-trending-up', color: 'info' }
 ])
 
-const recentUsers = computed(() => dashboardData.value?.recentUsers || [])
+const recentUsers = computed(() => dashboardData.value?.recentUsers || [
+  { name: 'Demo Kullanıcı', email: 'demo@example.com', role: 'Hasta', status: 'Aktif' },
+  { name: 'Test Kullanıcı', email: 'test@example.com', role: 'Hasta', status: 'Beklemede' }
+])
 </script>
 
 <template>
@@ -28,7 +31,7 @@ const recentUsers = computed(() => dashboardData.value?.recentUsers || [])
         <template #leading>
           <h1 class="text-lg font-black text-gray-900 dark:text-white uppercase italic tracking-tight">Genel Bakış</h1>
         </template>
-        <template #right>
+        <template #trailing>
           <div class="flex items-center gap-2">
             <UButton icon="i-lucide-plus" label="Yeni Hasta" color="primary" class="rounded-xl shadow-lg shadow-primary/20 font-bold" />
           </div>
@@ -92,38 +95,39 @@ const recentUsers = computed(() => dashboardData.value?.recentUsers || [])
               </div>
             </template>
             
-            <UTable
-              :data="recentUsers"
-              :columns="[
-                { accessorKey: 'name', header: 'Hasta Adı' },
-                { accessorKey: 'email', header: 'E-posta' },
-                { accessorKey: 'role', header: 'Tür' },
-                { accessorKey: 'status', header: 'Durum' }
-              ]"
-              class="w-full"
-              :ui="{
-                thead: 'bg-gray-50/50 dark:bg-gray-800/50',
-                th: 'px-8 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800',
-                td: 'px-8 py-4 text-gray-600 dark:text-gray-300'
-              }"
-            >
-              <template #name-cell="{ row }">
-                <div class="flex items-center gap-3">
-                  <UAvatar :alt="row.original.name" size="sm" class="bg-primary/10 text-primary font-bold" />
-                  <span class="font-semibold text-gray-900 dark:text-white">{{ row.original.name }}</span>
-                </div>
-              </template>
-
-              <template #status-cell="{ row }">
-                <UBadge
-                  :color="row.original.status === 'Aktif' ? 'success' : (row.original.status === 'Beklemede' ? 'warning' : 'neutral')"
-                  variant="subtle"
-                  class="rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-wider"
-                >
-                  {{ row.original.status }}
-                </UBadge>
-              </template>
-            </UTable>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50/50 dark:bg-gray-800/50">
+                  <tr>
+                    <th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-left">Hasta Adı</th>
+                    <th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-left">E-posta</th>
+                    <th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-left">Tür</th>
+                    <th class="px-8 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-left">Durum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="user in recentUsers" :key="user.email" class="border-b border-gray-100 dark:border-gray-800">
+                    <td class="px-8 py-4 text-gray-600 dark:text-gray-300">
+                      <div class="flex items-center gap-3">
+                        <UAvatar :alt="user.name" size="sm" class="bg-primary/10 text-primary font-bold" />
+                        <span class="font-semibold text-gray-900 dark:text-white">{{ user.name }}</span>
+                      </div>
+                    </td>
+                    <td class="px-8 py-4 text-gray-600 dark:text-gray-300">{{ user.email }}</td>
+                    <td class="px-8 py-4 text-gray-600 dark:text-gray-300">{{ user.role }}</td>
+                    <td class="px-8 py-4 text-gray-600 dark:text-gray-300">
+                      <UBadge
+                        :color="user.status === 'Aktif' ? 'success' : (user.status === 'Beklemede' ? 'warning' : 'neutral')"
+                        variant="subtle"
+                        class="rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-wider"
+                      >
+                        {{ user.status }}
+                      </UBadge>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </UCard>
 
           <!-- Quick Actions -->

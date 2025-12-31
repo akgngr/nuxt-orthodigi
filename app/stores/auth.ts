@@ -4,13 +4,30 @@ import { authClient } from '~/lib/auth-client'
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<any>(null)
     const session = ref<any>(null)
+    const permissions = ref<string[]>([])
     const loading = ref(false)
     const initialized = ref(false)
 
     // Getters
     const isAuthenticated = computed(() => !!session.value)
+    const hasPermission = (permission: string) => permissions.value.includes(permission)
 
     // Actions
+    const fetchPermissions = async () => {
+        try {
+            console.log('[AuthStore] Fetching permissions...')
+            const headers = import.meta.server ? useRequestHeaders(['cookie']) : {}
+            const { permissions: perms } = await $fetch<{ permissions: string[] }>('/api/auth/permissions', {
+                headers: headers as any
+            })
+            console.log('[AuthStore] Permissions fetched:', perms)
+            permissions.value = perms
+        } catch (e) {
+            console.error('[AuthStore] Failed to fetch permissions:', e)
+            permissions.value = []
+        }
+    }
+
     const refreshSession = async () => {
         if (loading.value) return
         loading.value = true
@@ -28,15 +45,18 @@ export const useAuthStore = defineStore('auth', () => {
                 console.log('[AuthStore] Session found:', data.user.email)
                 user.value = data.user
                 session.value = data.session
+                await fetchPermissions()
             } else {
                 console.log('[AuthStore] No session found')
                 user.value = null
                 session.value = null
+                permissions.value = []
             }
         } catch (e) {
             console.error('[AuthStore] Session check failed:', e)
             user.value = null
             session.value = null
+            permissions.value = []
         } finally {
             loading.value = false
             initialized.value = true
@@ -67,6 +87,8 @@ export const useAuthStore = defineStore('auth', () => {
 
             if (userData) {
                 user.value = userData
+                // Session is handled by refreshSession usually or we set it manually
+                // But calling refreshSession ensures permissions are fetched
                 await refreshSession()
                 initialized.value = true
                 console.log('[AuthStore] Sign in success handled')
@@ -87,6 +109,7 @@ export const useAuthStore = defineStore('auth', () => {
             await authClient.signOut()
             user.value = null
             session.value = null
+            permissions.value = []
             initialized.value = true
             await navigateTo('/login')
         } catch (e) {
@@ -99,9 +122,12 @@ export const useAuthStore = defineStore('auth', () => {
     return {
         user,
         session,
+        permissions,
         loading,
         initialized,
         isAuthenticated,
+        hasPermission,
+        fetchPermissions,
         refreshSession,
         signIn: signInAction,
         logout

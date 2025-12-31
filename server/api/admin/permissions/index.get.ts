@@ -1,6 +1,10 @@
 import { RoleService } from '../../../services/role.service'
+import { requirePermission } from '../../../utils/protect'
+import { PERMISSIONS } from '../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
+    // await requirePermission(event, PERMISSIONS.ROLES.READ)
+
     try {
         return await RoleService.getAllPermissions()
     } catch (error) {
