@@ -1,85 +1,85 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { createInterface } from 'node:readline/promises';
-import { execSync } from 'node:child_process';
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { createInterface } from 'node:readline/promises'
+import { execSync } from 'node:child_process'
 
 const rl = createInterface({
   input: process.stdin,
-  output: process.stdout,
-});
+  output: process.stdout
+})
 
 interface Field {
-  name: string;
-  label: string;
-  type: string;
-  isNullable: boolean;
-  isUnique: boolean;
-  slugSource?: string;
-  inTable: boolean;
+  name: string
+  label: string
+  type: string
+  isNullable: boolean
+  isUnique: boolean
+  slugSource?: string
+  inTable: boolean
 }
 
 function toSlug(text: string, separator: string = '_') {
   const trMap: Record<string, string> = {
-    'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u',
-    'Ç': 'c', 'Ğ': 'g', 'İ': 'i', 'Ö': 'o', 'Ş': 's', 'Ü': 'u'
-  };
+    ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u',
+    Ç: 'c', Ğ: 'g', İ: 'i', Ö: 'o', Ş: 's', Ü: 'u'
+  }
   return text
     .toString()
-    .replace(/[çğıöşüÇĞİÖŞÜ]/g, (m) => trMap[m] ?? m)
+    .replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m] ?? m)
     .replace(/\s+/g, separator)
     .replace(/[^\w_]+/g, '')
-    .toLowerCase();
+    .toLowerCase()
 }
 
 function toCamelCase(str: string) {
-  return str.charAt(0).toLowerCase() + str.slice(1);
+  return str.charAt(0).toLowerCase() + str.slice(1)
 }
 
 async function main() {
-  console.log('\n🚀 OrthoDigi Otonom CRUD Jeneratörüne Hoş Geldiniz!\n');
+  console.log('\n🚀 OrthoDigi Otonom CRUD Jeneratörüne Hoş Geldiniz!\n')
 
   // 1. Model İsmini Al
-  const modelNameInput = await rl.question('Model ismi nedir? (Örn: Product, Category): ');
-  const modelName = modelNameInput.charAt(0).toUpperCase() + modelNameInput.slice(1);
-  const modelNameLower = modelName.toLowerCase();
-  const modelLabel = await rl.question(`Model etiketi (Sidebar'da görünecek isim) [${modelName}]: `) || modelName;
+  const modelNameInput = await rl.question('Model ismi nedir? (Örn: Product, Category): ')
+  const modelName = modelNameInput.charAt(0).toUpperCase() + modelNameInput.slice(1)
+  const modelNameLower = modelName.toLowerCase()
+  const modelLabel = await rl.question(`Model etiketi (Sidebar'da görünecek isim) [${modelName}]: `) || modelName
 
   // 2. Alanları Al
-  const fields: Field[] = [];
-  let addMore = true;
+  const fields: Field[] = []
+  let addMore = true
 
   while (addMore) {
-    console.log(`\n--- ${modelName} için Yeni Alan Ekle ---`);
-    const fieldLabel = await rl.question('Alan Etiketi (Örn: Doktor Resmi, Başlık) [Boş bırakırsanız biter]: ');
-    
+    console.log(`\n--- ${modelName} için Yeni Alan Ekle ---`)
+    const fieldLabel = await rl.question('Alan Etiketi (Örn: Doktor Resmi, Başlık) [Boş bırakırsanız biter]: ')
+
     if (!fieldLabel) {
-      addMore = false;
-      break;
+      addMore = false
+      break
     }
 
-    const defaultName = toSlug(fieldLabel);
-    const fieldNameInput = await rl.question(`Veritabanı alan adı [${defaultName}]: `);
-    const fieldName = fieldNameInput || defaultName;
+    const defaultName = toSlug(fieldLabel)
+    const fieldNameInput = await rl.question(`Veritabanı alan adı [${defaultName}]: `)
+    const fieldName = fieldNameInput || defaultName
 
-    const fieldType = await rl.question('Veri tipi (String, Int, Boolean, DateTime, Float, Json, LongText, Slug) [String]: ') || 'String';
-    
-    let slugSource = undefined;
+    const fieldType = await rl.question('Veri tipi (String, Int, Boolean, DateTime, Float, Json, LongText, Slug) [String]: ') || 'String'
+
+    let slugSource = undefined
     if (fieldType === 'Slug') {
-      const availableFields = fields.filter(f => f.type === 'String' || f.type === 'LongText');
+      const availableFields = fields.filter(f => f.type === 'String' || f.type === 'LongText')
       if (availableFields.length > 0) {
-        console.log('\nSlug hangi alandan türetilsin?');
-        availableFields.forEach((f, i) => console.log(`${i + 1}. ${f.label} (${f.name})`));
-        const selection = await rl.question('Seçiminiz (Sayı): ');
-        const index = parseInt(selection) - 1;
+        console.log('\nSlug hangi alandan türetilsin?')
+        availableFields.forEach((f, i) => console.log(`${i + 1}. ${f.label} (${f.name})`))
+        const selection = await rl.question('Seçiminiz (Sayı): ')
+        const index = parseInt(selection) - 1
         if (index >= 0 && index < availableFields.length) {
-          slugSource = availableFields[index].name;
+          slugSource = availableFields[index].name
         }
       }
     }
 
-    const isNullable = (await rl.question('Null olabilir mi? (e/h) [h]: ')).toLowerCase() === 'e';
-    const isUnique = fieldType === 'Slug' ? true : (await rl.question('Benzersiz (Unique) mi? (e/h) [h]: ')).toLowerCase() === 'e';
-    const inTable = (await rl.question('Listeleme tablosunda görünsün mü? (e/h) [e]: ')).toLowerCase() !== 'h';
+    const isNullable = (await rl.question('Null olabilir mi? (e/h) [h]: ')).toLowerCase() === 'e'
+    const isUnique = fieldType === 'Slug' ? true : (await rl.question('Benzersiz (Unique) mi? (e/h) [h]: ')).toLowerCase() === 'e'
+    const inTable = (await rl.question('Listeleme tablosunda görünsün mü? (e/h) [e]: ')).toLowerCase() !== 'h'
 
     fields.push({
       name: fieldName,
@@ -89,157 +89,184 @@ async function main() {
       isUnique,
       slugSource,
       inTable
-    });
+    })
   }
 
   if (fields.length === 0) {
-    console.log('Hiç alan eklenmedi, işlem iptal ediliyor.');
-    process.exit(0);
+    console.log('Hiç alan eklenmedi, işlem iptal ediliyor.')
+    process.exit(0)
   }
 
-  console.log('\n🛠️  Dosyalar oluşturuluyor...');
+  console.log('\n🛠️  Dosyalar oluşturuluyor...')
 
   try {
     // 3. Prisma Şemasını Güncelle
-    await updatePrismaSchema(modelName, fields);
-    console.log('✅ Prisma şeması güncellendi.');
+    await updatePrismaSchema(modelName, fields)
+    console.log('✅ Prisma şeması güncellendi.')
 
     // 4. Servis Oluştur
-    await generateService(modelName, fields);
-    console.log('✅ Servis dosyası oluşturuldu.');
+    await generateService(modelName, fields)
+    console.log('✅ Servis dosyası oluşturuldu.')
 
     // 5. API Rotalarını Oluştur
-    await generateApiRoutes(modelName, fields);
-    console.log('✅ API rotaları oluşturuldu.');
+    await generateApiRoutes(modelName, fields)
+    console.log('✅ API rotaları oluşturuldu.')
 
     // 6. Nuxt Sayfasını Oluştur
-    await generateNuxtPage(modelName, fields);
-    console.log('✅ Nuxt sayfası oluşturuldu.');
+    await generateNuxtPage(modelName, fields)
+    console.log('✅ Nuxt sayfası oluşturuldu.')
 
     // 7. Navigasyonu Güncelle
-    await updateNavigation(modelName, modelLabel);
-    console.log('✅ Sidebar navigasyonu güncellendi.');
+    await updateNavigation(modelName, modelLabel)
+    console.log('✅ Sidebar navigasyonu güncellendi.')
 
     // 8. İzinleri Kaydet
-    await updatePermissions(modelName);
-    console.log('✅ İzinler sisteme kaydedildi.');
+    await updatePermissions(modelName)
+    console.log('✅ İzinler sisteme kaydedildi.')
 
-    console.log('\n🔄 Prisma istemcisi güncelleniyor ve migrasyon hazırlanıyor...');
+    console.log('\n🔄 Prisma istemcisi güncelleniyor ve migrasyon hazırlanıyor...')
     // Not: Gerçek bir ortamda bunu kullanıcıya sormak daha güvenli olabilir
     // execSync('npx prisma generate', { stdio: 'inherit' });
-    console.log('\n💡 İpucu: "npx prisma migrate dev --name add_' + modelNameLower + '" komutunu çalıştırarak veritabanını güncelleyebilirsiniz.');
+    console.log('\n💡 İpucu: "npx prisma migrate dev --name add_' + modelNameLower + '" komutunu çalıştırarak veritabanını güncelleyebilirsiniz.')
 
-    console.log(`\n✨ Başarıyla tamamlandı! ${modelName} CRUD yapısı hazır.`);
-    console.log(`📍 Sayfa: app/pages/admin/${modelNameLower}.vue`);
-    console.log(`📍 API: server/api/admin/${modelNameLower}`);
-    console.log(`📍 Servis: server/services/${modelNameLower}.service.ts`);
-
+    console.log(`\n✨ Başarıyla tamamlandı! ${modelName} CRUD yapısı hazır.`)
+    console.log(`📍 Sayfa: app/pages/admin/${modelNameLower}.vue`)
+    console.log(`📍 API: server/api/admin/${modelNameLower}`)
+    console.log(`📍 Servis: server/services/${modelNameLower}.service.ts`)
   } catch (error) {
-    console.error('\n❌ Bir hata oluştu:', error);
+    console.error('\n❌ Bir hata oluştu:', error)
   } finally {
-    rl.close();
+    rl.close()
   }
 }
 
 async function updatePermissions(modelName: string) {
-  const permPath = path.join(process.cwd(), 'server/utils/permissions.ts');
-  let content = await fs.readFile(permPath, 'utf-8');
+  const permPath = path.join(process.cwd(), 'server/utils/permissions.ts')
+  let content = await fs.readFile(permPath, 'utf-8')
 
-  const modelUpper = modelName.toUpperCase();
-  const modelLower = modelName.toLowerCase();
+  const modelUpper = modelName.toUpperCase()
+  const modelLower = modelName.toLowerCase()
 
   const newPermEntry = `    ${modelUpper}: {
         READ: '${modelLower}:read',
         WRITE: '${modelLower}:write',
         DELETE: '${modelLower}:delete',
     },
-`;
+`
 
   // PERMISSIONS objesinin içine ekle
   if (!content.includes(`${modelUpper}: {`)) {
-    const lastBraceIndex = content.lastIndexOf('} as const;');
-    content = content.slice(0, lastBraceIndex) + newPermEntry + content.slice(lastBraceIndex);
+    const lastBraceIndex = content.lastIndexOf('} as const;')
+    content = content.slice(0, lastBraceIndex) + newPermEntry + content.slice(lastBraceIndex)
 
     // ALL_PERMISSIONS dizisine ekle
-    const allPermsStart = content.indexOf('export const ALL_PERMISSIONS = [');
-    const allPermsEnd = content.indexOf('];', allPermsStart);
-    const newAllPermLine = `    ...Object.values(PERMISSIONS.${modelUpper}),\n`;
-    content = content.slice(0, allPermsEnd) + newAllPermLine + content.slice(allPermsEnd);
+    const allPermsStart = content.indexOf('export const ALL_PERMISSIONS = [')
+    const allPermsEnd = content.indexOf('];', allPermsStart)
+    const newAllPermLine = `    ...Object.values(PERMISSIONS.${modelUpper}),\n`
+    content = content.slice(0, allPermsEnd) + newAllPermLine + content.slice(allPermsEnd)
 
-    await fs.writeFile(permPath, content);
+    await fs.writeFile(permPath, content)
   }
 }
 
 async function updateNavigation(modelName: string, modelLabel: string) {
-  const navPath = path.join(process.cwd(), 'app/constants/navigation.ts');
-  let content = await fs.readFile(navPath, 'utf-8');
+  const navPath = path.join(process.cwd(), 'app/constants/navigation.ts')
+  const content = await fs.readFile(navPath, 'utf-8')
 
-  const modelLower = modelName.toLowerCase();
+  const modelLower = modelName.toLowerCase()
   const newLink = `        {
           label: '${modelLabel}',
           to: '/admin/${modelLower}',
           icon: 'i-lucide-database'
-        },`;
+        },`
 
   // İçerik Yönetimi children dizisinin sonuna ekle
   if (content.includes('label: \'İçerik Yönetimi\'')) {
-    const sectionStart = content.indexOf('label: \'İçerik Yönetimi\'');
-    const childrenStart = content.indexOf('children: [', sectionStart);
-    const childrenEnd = content.indexOf(']', childrenStart);
+    const sectionStart = content.indexOf('label: \'İçerik Yönetimi\'')
+    const childrenStart = content.indexOf('children: [', sectionStart)
+    const childrenEnd = content.indexOf(']', childrenStart)
 
     // Zaten var mı kontrol et
     if (!content.includes(`/admin/${modelLower}`)) {
-      const updatedContent = content.slice(0, childrenEnd) + newLink + content.slice(childrenEnd);
-      await fs.writeFile(navPath, updatedContent);
+      const updatedContent = content.slice(0, childrenEnd) + newLink + content.slice(childrenEnd)
+      await fs.writeFile(navPath, updatedContent)
     }
   }
 }
 
 async function updatePrismaSchema(modelName: string, fields: Field[]) {
-  const schemaPath = path.join(process.cwd(), 'prisma/schema.prisma');
-  let schema = await fs.readFile(schemaPath, 'utf-8');
+  const schemaPath = path.join(process.cwd(), 'prisma/schema.prisma')
+  const schema = await fs.readFile(schemaPath, 'utf-8')
 
   // Model zaten var mı kontrol et
   if (schema.includes(`model ${modelName}`)) {
-    console.warn(`⚠️  ${modelName} modeli zaten şemada mevcut. Üzerine yazılmayacak.`);
-    return;
+    console.warn(`⚠️  ${modelName} modeli zaten şemada mevcut. Üzerine yazılmayacak.`)
+    return
   }
 
-  let modelDefinition = `\nmodel ${modelName} {\n`;
-  modelDefinition += `  id        String   @id @default(cuid())\n`;
+  let modelDefinition = `\nmodel ${modelName} {\n`
+  modelDefinition += `  id        String   @id @default(cuid())\n`
 
   for (const field of fields) {
-    let prismaType = field.type;
+    let prismaType = field.type
     if (field.type === 'LongText' || field.type === 'Slug') {
-      prismaType = 'String';
+      prismaType = 'String'
     }
-    
-    let line = `  ${field.name}  ${prismaType}${field.isNullable || field.type === 'LongText' || field.type === 'Slug' ? '?' : ''}`;
-    if (field.isUnique) line += ' @unique';
-    modelDefinition += line + '\n';
+
+    let line = `  ${field.name}  ${prismaType}${field.isNullable || field.type === 'LongText' || field.type === 'Slug' ? '?' : ''}`
+    if (field.isUnique) line += ' @unique'
+    modelDefinition += line + '\n'
   }
 
-  modelDefinition += `  createdAt DateTime @default(now())\n`;
-  modelDefinition += `  updatedAt DateTime @updatedAt\n`;
-  modelDefinition += `\n  @@map("${modelName.toLowerCase()}")\n`;
-  modelDefinition += `}\n`;
+  modelDefinition += `  createdAt DateTime @default(now())\n`
+  modelDefinition += `  updatedAt DateTime @updatedAt\n`
+  modelDefinition += `\n  @@map("${modelName.toLowerCase()}")\n`
+  modelDefinition += `}\n`
 
-  await fs.appendFile(schemaPath, modelDefinition);
+  await fs.appendFile(schemaPath, modelDefinition)
 }
 
 async function generateService(modelName: string, fields: Field[]) {
-  const serviceDir = path.join(process.cwd(), 'server/services');
-  const servicePath = path.join(serviceDir, `${modelName.toLowerCase()}.service.ts`);
-  const prismaModel = toCamelCase(modelName);
-  
+  const serviceDir = path.join(process.cwd(), 'server/services')
+  const servicePath = path.join(serviceDir, `${modelName.toLowerCase()}.service.ts`)
+  const prismaModel = toCamelCase(modelName)
+
   const content = `import { prisma } from '../utils/prisma';
 import type { Prisma } from '@prisma/client';
 
 export class ${modelName}Service {
-  static async getAll() {
-    return await (prisma as any).${prismaModel}.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
+  static async getAll(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sort?: string;
+    order?: 'asc' | 'desc';
+  }) {
+    const { page = 1, limit = 10, search, sort = 'createdAt', order = 'desc' } = params;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        ${fields.filter(f => f.type === 'String' || f.type === 'LongText').map(f => `{ ${f.name}: { contains: search, mode: 'insensitive' } }`).join(',\n        ')}
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      (prisma as any).${prismaModel}.findMany({
+        where,
+        orderBy: { [sort]: order },
+        skip,
+        take: limit,
+      }),
+      (prisma as any).${prismaModel}.count({ where })
+    ]);
+
+    return {
+      items,
+      total,
+      pages: Math.ceil(total / limit)
+    };
   }
 
   static async getById(id: string) {
@@ -269,15 +296,15 @@ export class ${modelName}Service {
     });
   }
 }
-`;
+`
 
-  await fs.writeFile(servicePath, content);
+  await fs.writeFile(servicePath, content)
 }
 
 async function generateApiRoutes(modelName: string, fields: Field[]) {
-  const apiBaseDir = path.join(process.cwd(), `server/api/admin/${modelName.toLowerCase()}`);
-  await fs.mkdir(apiBaseDir, { recursive: true });
-  const modelLower = modelName.toLowerCase();
+  const apiBaseDir = path.join(process.cwd(), `server/api/admin/${modelName.toLowerCase()}`)
+  await fs.mkdir(apiBaseDir, { recursive: true })
+  const modelLower = modelName.toLowerCase()
 
   // index.get.ts (List)
   await fs.writeFile(path.join(apiBaseDir, 'index.get.ts'), `import { ${modelName}Service } from '../../../services/${modelName.toLowerCase()}.service';
@@ -285,9 +312,16 @@ import { requirePermission } from '../../../utils/protect';
 
 export default defineEventHandler(async (event) => {
   await requirePermission(event, '${modelLower}:read');
-  return await ${modelName}Service.getAll();
+  const query = getQuery(event);
+  return await ${modelName}Service.getAll({
+    page: query.page ? parseInt(query.page as string) : undefined,
+    limit: query.limit ? parseInt(query.limit as string) : undefined,
+    search: query.search as string,
+    sort: query.sort as string,
+    order: query.order as 'asc' | 'desc',
+  });
 });
-`);
+`)
 
   // index.post.ts (Create)
   await fs.writeFile(path.join(apiBaseDir, 'index.post.ts'), `import { ${modelName}Service } from '../../../services/${modelName.toLowerCase()}.service';
@@ -298,7 +332,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   return await ${modelName}Service.create(body);
 });
-`);
+`)
 
   // [id].get.ts (Detail)
   await fs.writeFile(path.join(apiBaseDir, '[id].get.ts'), `import { ${modelName}Service } from '../../../services/${modelName.toLowerCase()}.service';
@@ -310,7 +344,7 @@ export default defineEventHandler(async (event) => {
   if (!id) throw createError({ statusCode: 400, message: 'ID missing' });
   return await ${modelName}Service.getById(id);
 });
-`);
+`)
 
   // [id].put.ts (Update)
   await fs.writeFile(path.join(apiBaseDir, '[id].put.ts'), `import { ${modelName}Service } from '../../../services/${modelName.toLowerCase()}.service';
@@ -323,7 +357,7 @@ export default defineEventHandler(async (event) => {
   if (!id) throw createError({ statusCode: 400, message: 'ID missing' });
   return await ${modelName}Service.update(id, body);
 });
-`);
+`)
 
   // [id].delete.ts (Delete)
   await fs.writeFile(path.join(apiBaseDir, '[id].delete.ts'), `import { ${modelName}Service } from '../../../services/${modelName.toLowerCase()}.service';
@@ -335,32 +369,32 @@ export default defineEventHandler(async (event) => {
   if (!id) throw createError({ statusCode: 400, message: 'ID missing' });
   return await ${modelName}Service.delete(id);
 });
-`);
+`)
 }
 
 async function generateNuxtPage(modelName: string, fields: Field[]) {
-  const modelNameLower = modelName.toLowerCase();
-  const pagePath = path.join(process.cwd(), `app/pages/admin/${modelNameLower}.vue`);
+  const modelNameLower = modelName.toLowerCase()
+  const pagePath = path.join(process.cwd(), `app/pages/admin/${modelNameLower}.vue`)
 
-  const zodSchema = fields.map(f => {
-    let line = `  ${f.name}: z.`;
-    if (f.type === 'String' || f.type === 'LongText' || f.type === 'Slug') line += 'string()';
-    else if (f.type === 'Int') line += 'number().int()';
-    else if (f.type === 'Float') line += 'number()';
-    else if (f.type === 'Boolean') line += 'boolean()';
-    else if (f.type === 'DateTime') line += 'string()'; 
-    else line += 'any()';
+  const zodSchema = fields.map((f) => {
+    let line = `  ${f.name}: z.`
+    if (f.type === 'String' || f.type === 'LongText' || f.type === 'Slug') line += 'string()'
+    else if (f.type === 'Int') line += 'number().int()'
+    else if (f.type === 'Float') line += 'number()'
+    else if (f.type === 'Boolean') line += 'boolean()'
+    else if (f.type === 'DateTime') line += 'string()'
+    else line += 'any()'
 
-    if (f.isNullable || f.type === 'LongText' || f.type === 'Slug') line += '.optional().or(z.literal(\'\'))';
-    else if (f.type === 'String') line += '.min(1, \'Bu alan gereklidir\')';
-    
-    return line;
-  }).join(',\n');
+    if (f.isNullable || f.type === 'LongText' || f.type === 'Slug') line += '.optional().or(z.literal(\'\'))'
+    else if (f.type === 'String') line += '.min(1, \'Bu alan gereklidir\')'
 
-  const hasLongText = fields.some(f => f.type === 'LongText');
-  const slugFields = fields.filter(f => f.type === 'Slug' && f.slugSource);
+    return line
+  }).join(',\n')
 
-  const formFields = fields.map(f => {
+  const hasLongText = fields.some(f => f.type === 'LongText')
+  const slugFields = fields.filter(f => f.type === 'Slug' && f.slugSource)
+
+  const formFields = fields.map((f) => {
     if (f.type === 'LongText') {
       return `      <UFormField label="${f.label}" name="${f.name}">
         <template #help>
@@ -411,52 +445,54 @@ async function generateNuxtPage(modelName: string, fields: Field[]) {
             />
           </UEditor>
         </div>
-      </UFormField>`;
+      </UFormField>`
     }
 
-    let component = 'UInput';
-    let extraProps = '';
-    
+    let component = 'UInput'
+    let extraProps = ''
+
     if (f.type === 'Boolean') {
-      component = 'UCheckbox';
+      component = 'UCheckbox'
     } else if (f.type === 'Int' || f.type === 'Float') {
-      extraProps = ' type="number"';
+      extraProps = ' type="number"'
     } else if (f.type === 'DateTime') {
-      extraProps = ' type="datetime-local"';
+      extraProps = ' type="datetime-local"'
     } else if (f.type === 'Slug') {
-      extraProps = ' placeholder="Otomatik oluşturulur..."';
+      extraProps = ' placeholder="Otomatik oluşturulur..."'
     }
 
     return `      <UFormField label="${f.label}" name="${f.name}"${f.type === 'Slug' ? ' help="Bu alan ' + f.slugSource + ' alanından otomatik üretilir."' : ''}>
         <${component} v-model="state.${f.name}"${extraProps} class="w-full shadow-sm" size="md" />
-      </UFormField>`;
-  }).join('\n\n');
+      </UFormField>`
+  }).join('\n\n')
 
   const tableColumns = fields
     .filter(f => f.inTable)
     .map(f => `  { accessorKey: '${f.name}', header: '${f.label}' }`)
-    .join(',\n');
+    .join(',\n')
 
-  const stateInit = fields.map(f => {
-    let val = "''";
-    if (f.type === 'Boolean') val = 'false';
-    if (f.type === 'Int' || f.type === 'Float') val = '0';
-    if (f.type === 'Json') val = "[] as any";
-    if (f.type === 'LongText' || f.type === 'Slug') val = "'' as any";
-    return `  ${f.name}: ${val}`;
-  }).join(',\n');
+  const stateInit = fields.map((f) => {
+    let val = '\'\''
+    if (f.type === 'Boolean') val = 'false'
+    if (f.type === 'Int' || f.type === 'Float') val = '0'
+    if (f.type === 'Json') val = '[] as any'
+    if (f.type === 'LongText' || f.type === 'Slug') val = '\'\' as any'
+    return `  ${f.name}: ${val}`
+  }).join(',\n')
 
   const watchBlocks = slugFields.map(f => `
 // Watch ${f.slugSource} to auto-generate ${f.name}
 watch(() => state.${f.slugSource}, (newVal) => {
-  if (!isEditMode.value && newVal) {
+  if (newVal) {
     state.${f.name} = slugify(newVal)
   }
-})`).join('\n');
+})`).join('\n')
 
   const content = `<script setup lang="ts">
+import { ref, reactive, computed, watch } from 'vue'
 import { z } from 'zod'
-import type { FormSubmitEvent, TableColumn, EditorToolbarItem, EditorSuggestionMenuItem } from '#ui/types'
+import type { FormSubmitEvent, TableColumn, EditorToolbarItem, EditorSuggestionMenuItem } from '@nuxt/ui'
+import { useFetch, useRuntimeConfig, useToast } from '#imports'
 
 definePageMeta({
   layout: 'admin',
@@ -480,7 +516,8 @@ function slugify(text: string) {
     .replace(/-+$/, '')
 }
 
-${hasLongText ? `
+${hasLongText
+  ? `
 // --- Editor Configuration ---
 const toolbarItems: EditorToolbarItem[][] = [
   [{
@@ -604,7 +641,8 @@ function toggleFullscreen() {
   document.body.style.overflow = isFullscreen.value ? 'hidden' : ''
   setTimeout(() => { isToggling = false }, 100)
 }
-` : ''}
+`
+  : ''}
 
 interface ${modelName} {
   id: string
@@ -613,7 +651,31 @@ ${fields.map(f => `  ${f.name}: ${f.type === 'String' || f.type === 'LongText' |
   updatedAt: string
 }
 
-const { data: listData, refresh, status } = await useFetch<${modelName}[]>('/api/admin/${modelNameLower}')
+  const { data: listData, refresh, status } = await useFetch<{ items: ${modelName}[], total: number, pages: number }>('/api/admin/${modelNameLower}', {
+    query: computed(() => ({
+      page: page.value,
+      limit: limit.value,
+      search: search.value,
+      sort: sort.value,
+      order: order.value
+    })),
+    watch: [page, limit, search, sort, order]
+  })
+
+const page = ref(1)
+const limit = ref(10)
+const search = ref('')
+const sort = ref('createdAt')
+const order = ref<'asc' | 'desc'>('desc')
+
+const sorting = ref([{ id: 'createdAt', desc: true }])
+
+watch(sorting, (newVal) => {
+  if (newVal.length > 0) {
+    sort.value = newVal[0].id
+    order.value = newVal[0].desc ? 'desc' : 'asc'
+  }
+})
 
 const isDrawerOpen = ref(false)
 const isEditMode = ref(false)
@@ -637,9 +699,9 @@ function openCreateDrawer() {
   isEditMode.value = false
   Object.assign(state, {
     id: '',
-${fields.map(f => {
-    return `    ${f.name}: ${f.type === 'Boolean' ? 'false' : f.type === 'Int' || f.type === 'Float' ? '0' : f.type === 'Json' ? '[]' : "''"}`;
-  }).join(',\n')}
+${fields.map((f) => {
+  return `    ${f.name}: ${f.type === 'Boolean' ? 'false' : f.type === 'Int' || f.type === 'Float' ? '0' : f.type === 'Json' ? '[]' : '\'\''}`
+}).join(',\n')}
   })
   isDrawerOpen.value = true
 }
@@ -648,9 +710,9 @@ function openEditDrawer(item: ${modelName}) {
   isEditMode.value = true
   Object.assign(state, {
     id: item.id,
-${fields.map(f => {
-    return `    ${f.name}: item.${f.name} ?? ${f.type === 'Boolean' ? 'false' : f.type === 'Int' || f.type === 'Float' ? '0' : f.type === 'Json' ? '[]' : "''"}`;
-  }).join(',\n')}
+${fields.map((f) => {
+  return `    ${f.name}: item.${f.name} ?? ${f.type === 'Boolean' ? 'false' : f.type === 'Int' || f.type === 'Float' ? '0' : f.type === 'Json' ? '[]' : '\'\''}`
+}).join(',\n')}
   })
   isDrawerOpen.value = true
 }
@@ -696,7 +758,8 @@ async function deleteItem(id: string) {
   }
 }
 
-const items = computed<${modelName}[]>(() => ((listData.value ?? []) as unknown as ${modelName}[]))
+const items = computed<${modelName}[]>(() => ((listData.value?.items ?? []) as unknown as ${modelName}[]))
+const total = computed(() => listData.value?.total ?? 0)
 
 const columns: TableColumn<${modelName}>[] = [
 ${tableColumns},
@@ -712,13 +775,22 @@ ${tableColumns},
           <h1 class="text-xl font-black text-gray-900 dark:text-white uppercase italic tracking-tight">${modelName} Yönetimi</h1>
         </template>
         <template #trailing>
-          <UButton 
-            icon="i-lucide-plus" 
-            label="Yeni Ekle" 
-            color="primary" 
-            class="font-bold rounded-xl" 
-            @click="openCreateDrawer" 
-          />
+          <div class="flex items-center gap-4">
+            <UInput
+              v-model="search"
+              icon="i-lucide-search"
+              placeholder="Ara..."
+              class="w-64"
+              size="md"
+            />
+            <UButton 
+              icon="i-lucide-plus" 
+              label="Yeni Ekle" 
+              color="primary" 
+              class="font-bold rounded-xl" 
+              @click="openCreateDrawer" 
+            />
+          </div>
         </template>
       </AdminNavbar>
     </template>
@@ -726,6 +798,7 @@ ${tableColumns},
     <template #body>
       <UCard class="shadow-sm border-none bg-white dark:bg-gray-900" :ui="{ body: 'p-0', header: 'border-b-0 px-6 py-4' }">
         <UTable
+          v-model:sorting="sorting"
           :data="items"
           :columns="columns"
           :loading="isLoading"
@@ -750,6 +823,19 @@ ${tableColumns},
             </div>
           </template>
         </UTable>
+
+        <div v-if="total > 0" class="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-800">
+          <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
+            Toplam <span class="text-gray-900 dark:text-white font-bold">{{ total }}</span> kayıt bulundu
+          </div>
+          <UPagination
+            v-model:page="page"
+            :total="total"
+            :items-per-page="limit"
+            :sibling-count="1"
+            show-edges
+          />
+        </div>
       </UCard>
     </template>
   </UDashboardPanel>
@@ -789,9 +875,9 @@ ${formFields}
     </USlideover>
   </ClientOnly>
 </template>
-`;
+`
 
-  await fs.writeFile(pagePath, content);
+  await fs.writeFile(pagePath, content)
 }
 
-main();
+main()

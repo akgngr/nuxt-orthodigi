@@ -16,17 +16,9 @@ export const getPrisma = () => {
       throw new Error('[Prisma] DATABASE_URL is missing in runtimeConfig and process.env!')
     }
 
-    console.log('[Prisma] Config databaseUrl:', config.databaseUrl ? 'Present' : 'Missing')
-    console.log('[Prisma] Env DATABASE_URL:', process.env.DATABASE_URL ? 'Present' : 'Missing')
-    
-    // Mask the password in logs
-    const maskedUrl = url.replace(/:([^:@]+)@/, ':****@')
-    console.log('[Prisma] URL prefix:', maskedUrl.split('@')[1] || maskedUrl)
-
-    console.log('[Prisma] Initializing with PrismaPg adapter...')
     const pool = new Pool({ connectionString: url })
     const adapter = new PrismaPg(pool)
-    
+
     _prisma = new PrismaClient({ adapter })
   }
   return _prisma

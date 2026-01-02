@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { ref, computed, reactive, watch } from 'vue'
 import { z } from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
- 
+import type { FormSubmitEvent } from '@nuxt/ui'
 
 // User type definition
 interface User {
@@ -27,15 +27,35 @@ definePageMeta({
 })
 
 // --- State ---
-const { data: users, refresh: refreshUsers, status: usersStatus, error: usersError } = await useFetch<User[]>('/api/admin/users')
-const { data: roles, status: rolesStatus, error: rolesError } = await useFetch<Role[]>('/api/admin/roles')
+const page = ref(1)
+const limit = ref(10)
+const search = ref('')
+
+const { data, refresh: refreshUsers, status: usersStatus, error: usersError } = await useFetch<any>('/api/admin/users', {
+  query: {
+    page,
+    limit,
+    search
+  },
+  watch: [page, limit, search]
+})
+const { data: rolesData, status: rolesStatus, error: rolesError } = await useFetch<any>('/api/admin/roles')
+
+const users = computed(() => data.value?.items || [])
+const roleOptions = computed(() => rolesData.value?.items || [])
+const total = computed(() => data.value?.total || 0)
 
 const isDrawerOpen = ref(false)
 const isEditMode = ref(false)
 const isSubmitting = ref(false)
 const isLoading = computed(() => usersStatus.value === 'pending' || rolesStatus.value === 'pending')
 
-const roleOptions = computed(() => roles.value || [])
+const columns = [
+  { accessorKey: 'name', header: 'Kullanıcı' },
+  { accessorKey: 'role', header: 'Rol' },
+  { accessorKey: 'createdAt', header: 'Kayıt Tarihi' },
+  { id: 'actions', header: 'İşlemler' }
+]
 
 const state = reactive({
   id: '',
@@ -70,20 +90,20 @@ function openCreateDrawer() {
 }
 
 function openEditDrawer(user: User) {
-  console.log("Drawer açılıyor:", user)
+  console.log('Drawer açılıyor:', user)
   isEditMode.value = true
   state.id = user.id
   state.name = user.name || ''
   state.email = user.email || ''
   state.password = '' // Don't show password
-  
+
   // Find the role object from options to ensure reference equality for USelectMenu
   if (user.role && user.role.id) {
-    state.selectedRole = roleOptions.value.find(r => r.id === user.role!.id)
+    state.selectedRole = roleOptions.value.find((r: Role) => r.id === user.role!.id)
   } else {
     state.selectedRole = undefined
   }
-  
+
   isDrawerOpen.value = true
 }
 
@@ -94,27 +114,27 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       useToast().add({ title: 'Şifre gereklidir', color: 'error' })
       return
     }
-    
+
     const payload: any = {
       name: event.data.name,
       roleId: event.data.selectedRole?.id
     }
-    
+
     if (event.data.password) {
       payload.password = event.data.password
     }
-    
+
     if (isEditMode.value) {
       await $fetch(`/api/admin/users/${state.id}`, {
-          method: 'PUT',
-          body: payload
+        method: 'PUT',
+        body: payload
       })
       useToast().add({ title: 'Kullanıcı güncellendi', color: 'success' })
     } else {
-       payload.email = event.data.email
-       await $fetch('/api/admin/users', {
-          method: 'POST',
-          body: payload
+      payload.email = event.data.email
+      await $fetch('/api/admin/users', {
+        method: 'POST',
+        body: payload
       })
       useToast().add({ title: 'Kullanıcı oluşturuldu', color: 'success' })
     }
@@ -127,119 +147,204 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   }
 }
 
-// Basit tablo için HTML kullanılıyor
-
 const items = computed<User[]>(() => ((users.value ?? []) as unknown as User[]))
 
 // Error handling
 if (usersError.value) {
   console.error('Kullanıcılar yüklenirken hata:', usersError.value)
-  useToast().add({ 
-    title: 'Kullanıcılar yüklenemedi', 
+  useToast().add({
+    title: 'Kullanıcılar yüklenemedi',
     description: usersError.value.message,
-    color: 'error' 
+    color: 'error'
   })
 }
 
 if (rolesError.value) {
   console.error('Roller yüklenirken hata:', rolesError.value)
-  useToast().add({ 
-    title: 'Roller yüklenemedi', 
+  useToast().add({
+    title: 'Roller yüklenemedi',
     description: rolesError.value.message,
-    color: 'error' 
+    color: 'error'
   })
 }
 </script>
 
 <template>
   <UDashboardPanel grow>
-    <template #header>
-      <AdminNavbar>
-        <template #leading>
-            <h1 class="text-xl font-black text-gray-900 dark:text-white uppercase italic tracking-tight">Kullanıcı Yönetimi</h1>
-        </template>
-        <template #trailing>
-            <UButton icon="i-lucide-user-plus" label="Yeni Kullanıcı" color="primary" class="font-bold rounded-xl" @click="openCreateDrawer" />
-        </template>
-      </AdminNavbar>
-    </template>
+    <AdminNavbar />
 
-    <template #body>
-      <UCard class="shadow-sm border-none bg-white dark:bg-gray-900" :ui="{ body: 'p-0', header: 'border-b-0 px-6 py-4' }">
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="bg-gray-50/50 dark:bg-gray-800/50">
-              <tr>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-left">Kullanıcı</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-left">Rol</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-left">Kayıt Tarihi</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-left">İşlemler</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="user in items" :key="user.id" class="border-b border-gray-100 dark:border-gray-800">
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
-                    <UAvatar :alt="user.name" size="sm" class="bg-primary/10 text-primary font-bold" />
-                    <div>
-                      <div class="font-semibold text-gray-900 dark:text-white">{{ user.name }}</div>
-                      <div class="text-xs text-gray-500">{{ user.email }}</div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <UBadge :color="user.role?.name === 'admin' ? 'primary' : 'neutral'" variant="subtle" class="rounded-full px-3 py-1 font-bold text-[10px] uppercase">
-                    {{ user.role?.name || 'User' }}
-                  </UBadge>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="text-sm">{{ new Date(user.createdAt).toLocaleDateString('tr-TR') }}</span>
-                </td>
-                <td class="px-6 py-4">
-                  <UButton icon="i-lucide-edit-2" color="neutral" variant="ghost" size="xs" @click.stop.prevent="openEditDrawer(user)" />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <UDashboardNavbar title="Kullanıcı Yönetimi">
+      <template #right>
+        <UButton
+          label="Yeni Kullanıcı"
+          icon="i-lucide-plus"
+          color="primary"
+          @click="openCreateDrawer"
+        />
+      </template>
+    </UDashboardNavbar>
+
+    <UDashboardToolbar>
+      <template #left>
+        <UInput
+          v-model="search"
+          icon="i-lucide-search"
+          placeholder="Kullanıcı ara..."
+          class="w-64"
+          @update:model-value="page = 1"
+        />
+      </template>
+    </UDashboardToolbar>
+
+    <div class="flex-1 overflow-y-auto p-4">
+      <UCard
+        :ui="{ body: 'p-0' }"
+        class="flex-1"
+      >
+        <UTable
+          :data="users"
+          :columns="columns"
+          :loading="isLoading"
+          class="w-full"
+        >
+          <template #name-cell="{ row }">
+            <div class="flex items-center gap-3">
+              <UAvatar
+                :alt="(row.original as any).name"
+                size="sm"
+                class="bg-primary/10 text-primary font-bold"
+              />
+              <div>
+                <div class="font-semibold text-gray-900 dark:text-white">
+                  {{ (row.original as any).name }}
+                </div>
+                <div class="text-xs text-gray-500">
+                  {{ (row.original as any).email }}
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <template #role-cell="{ row }">
+            <UBadge
+              :color="(row.original as any).role?.name === 'admin' ? 'primary' : 'neutral'"
+              variant="subtle"
+              class="rounded-full px-3 py-1 font-bold text-[10px] uppercase"
+            >
+              {{ (row.original as any).role?.name || 'User' }}
+            </UBadge>
+          </template>
+
+          <template #createdAt-cell="{ row }">
+            <span class="text-sm text-gray-600 dark:text-gray-400">{{ new Date((row.original as any).createdAt).toLocaleDateString('tr-TR') }}</span>
+          </template>
+
+          <template #actions-cell="{ row }">
+            <UButton
+              icon="i-lucide-edit-2"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              @click.stop.prevent="openEditDrawer(row.original as any)"
+            />
+          </template>
+        </UTable>
+
+        <template #footer>
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-500">
+              Toplam {{ total }} kullanıcı
+            </div>
+            <UPagination
+              v-model:page="page"
+              :total="total"
+              :page-count="limit"
+            />
+          </div>
+        </template>
       </UCard>
-      
-    </template>
-    
+    </div>
   </UDashboardPanel>
 
   <!-- Drawer -->
   <ClientOnly>
-    <USlideover v-model:open="isDrawerOpen" title="Kullanıcı Yönetimi">
+    <USlideover
+      v-model:open="isDrawerOpen"
+      title="Kullanıcı Yönetimi"
+    >
       <template #content>
         <div class="p-6">
-          <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit" id="user-form">
-              <UFormField label="Ad Soyad" name="name">
-                  <UInput v-model="state.name" placeholder="John Doe" class="w-full" />
-              </UFormField>
-              
-              <UFormField label="E-posta" name="email">
-                  <UInput v-model="state.email" placeholder="ornek@email.com" :disabled="isEditMode" class="w-full" />
-              </UFormField>
+          <UForm
+            id="user-form"
+            :schema="schema"
+            :state="state"
+            class="space-y-6"
+            @submit="onSubmit"
+          >
+            <UFormField
+              label="Ad Soyad"
+              name="name"
+            >
+              <UInput
+                v-model="state.name"
+                placeholder="John Doe"
+                class="w-full"
+              />
+            </UFormField>
 
-              <UFormField v-if="!isEditMode" label="Şifre" name="password" help="Değiştirmek istemiyorsanız boş bırakın">
-                  <UInput v-model="state.password" type="password" placeholder="********" class="w-full" />
-              </UFormField>
+            <UFormField
+              label="E-posta"
+              name="email"
+            >
+              <UInput
+                v-model="state.email"
+                placeholder="ornek@email.com"
+                :disabled="isEditMode"
+                class="w-full"
+              />
+            </UFormField>
 
-              <UFormField label="Rol" name="selectedRole">
-                  <USelectMenu 
-                      v-model="state.selectedRole" 
-                      :items="roleOptions" 
-                      label-key="name" 
-                      placeholder="Rol Seçin" 
-                      class="w-full"
-                  />
-              </UFormField>
-              
-              <div class="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-800">
-                  <UButton label="İptal" color="neutral" variant="ghost" @click="isDrawerOpen = false" />
-                  <UButton type="submit" label="Kaydet" color="primary" :loading="isSubmitting" />
-              </div>
+            <UFormField
+              v-if="!isEditMode"
+              label="Şifre"
+              name="password"
+              help="Değiştirmek istemiyorsanız boş bırakın"
+            >
+              <UInput
+                v-model="state.password"
+                type="password"
+                placeholder="********"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UFormField
+              label="Rol"
+              name="selectedRole"
+            >
+              <USelectMenu
+                v-model="state.selectedRole"
+                :items="roleOptions"
+                label-key="name"
+                placeholder="Rol Seçin"
+                class="w-full"
+              />
+            </UFormField>
+
+            <div class="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-800">
+              <UButton
+                label="İptal"
+                color="neutral"
+                variant="ghost"
+                @click="isDrawerOpen = false"
+              />
+              <UButton
+                type="submit"
+                label="Kaydet"
+                color="primary"
+                :loading="isSubmitting"
+              />
+            </div>
           </UForm>
         </div>
       </template>

@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!user) {
-         throw new Error('Failed to create user')
+      throw new Error('Failed to create user')
     }
 
     // 2. Create Admin Role if not exists
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
         roleId: adminRole.id
       }
     })
-    
+
     return {
       success: true,
       user: user.user,

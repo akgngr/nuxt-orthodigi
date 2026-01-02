@@ -6,19 +6,19 @@ import { storeToRefs } from 'pinia'
  * It ensures all components share the same reactive state.
  */
 export const useAuth = () => {
-    const authStore = useAuthStore()
-    const { user, session, permissions, loading, isAuthenticated, initialized } = storeToRefs(authStore)
+  const authStore = useAuthStore()
+  const { user, session, permissions, loading, isAuthenticated, initialized } = storeToRefs(authStore)
 
-    return {
-        user,
-        session,
-        permissions,
-        loading,
-        isAuthenticated,
-        initialized,
-        hasPermission: authStore.hasPermission,
-        refreshSession: authStore.refreshSession,
-        signIn: authStore.signIn,
-        logout: authStore.logout
-    }
+  return {
+    user,
+    session,
+    permissions,
+    loading,
+    isAuthenticated,
+    initialized,
+    hasPermission: authStore.hasPermission,
+    refreshSession: authStore.refreshSession,
+    signIn: authStore.signIn,
+    logout: authStore.logout
+  }
 }

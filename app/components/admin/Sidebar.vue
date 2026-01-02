@@ -19,7 +19,7 @@ function filterItems(items: NavigationItem[]): NavigationItem[] {
 
     // Check children first
     const filteredChildren = item.children ? filterItems(item.children) : undefined
-    
+
     // Check permission for the item itself
     const isVisible = !item.permission || hasPermission(item.permission)
 
@@ -36,7 +36,7 @@ function filterItems(items: NavigationItem[]): NavigationItem[] {
 
 // Filter the nested array structure of navigationItems
 const filteredNavigationItems = computed(() => {
-  return items.map(group => {
+  return items.map((group) => {
     const filteredGroup = filterItems(group)
     // Remove labels if they are the only thing left in the group
     if (filteredGroup.length === 1 && filteredGroup[0]?.type === 'label') {
@@ -56,7 +56,10 @@ const filteredNavigationItems = computed(() => {
     <template #header>
       <div class="flex items-center gap-3 px-2 py-1">
         <div class="w-9 h-9 rounded-xl bg-linear-to-br from-primary-500 to-indigo-600 flex items-center justify-center text-white shadow-lg">
-          <UIcon name="i-lucide-stethoscope" class="w-6 h-6" />
+          <UIcon
+            name="i-lucide-stethoscope"
+            class="w-6 h-6"
+          />
         </div>
         <div class="flex flex-col">
           <span class="font-black text-lg leading-none tracking-tight text-gray-900 dark:text-white uppercase italic">OrthoDigi</span>

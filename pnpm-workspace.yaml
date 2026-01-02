@@ -1,6 +1,9 @@
 ignoredBuiltDependencies:
   - '@parcel/watcher'
+  - '@prisma/engines'
   - '@tailwindcss/oxide'
+  - core-js
   - esbuild
+  - prisma
   - unrs-resolver
   - vue-demi

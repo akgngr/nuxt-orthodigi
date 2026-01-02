@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { ref, computed, reactive, watch } from 'vue'
 import { z } from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
- 
+import type { FormSubmitEvent } from '@nuxt/ui'
 
 // Permission type definition
 interface Permission {
@@ -17,7 +17,21 @@ definePageMeta({
 })
 
 // --- State ---
-const { data: permissions, refresh: refreshPermissions, status: permissionsStatus, error: permissionsError } = await useFetch<Permission[]>('/api/admin/permissions')
+const page = ref(1)
+const limit = ref(10)
+const search = ref('')
+
+const { data, refresh: refreshPermissions, status: permissionsStatus, error: permissionsError } = await useFetch<any>('/api/admin/permissions', {
+  query: {
+    page,
+    limit,
+    search
+  },
+  watch: [page, limit, search]
+})
+
+const permissions = computed(() => data.value?.items || [])
+const total = computed(() => data.value?.total || 0)
 
 const isDrawerOpen = ref(false)
 const isEditMode = ref(false)
@@ -79,87 +93,158 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   }
 }
 
-const items = computed(() => permissions.value || [])
+// Table columns
+const columns = [
+  { accessorKey: 'name', header: 'İzin Kodu' },
+  { accessorKey: 'description', header: 'Açıklama' },
+  { accessorKey: 'createdAt', header: 'Oluşturulma Tarihi' },
+  { id: 'actions', header: 'İşlemler' }
+]
+
+const items = computed<Permission[]>(() => permissions.value || [])
 
 // Error handling
 if (permissionsError.value) {
   console.error('İzinler yüklenirken hata:', permissionsError.value)
-  useToast().add({ 
-    title: 'İzinler yüklenemedi', 
+  useToast().add({
+    title: 'İzinler yüklenemedi',
     description: permissionsError.value.message,
-    color: 'error' 
+    color: 'error'
   })
 }
 </script>
 
 <template>
   <UDashboardPanel grow>
-    <template #header>
-      <AdminNavbar>
-        <template #leading>
-            <h1 class="text-xl font-black text-gray-900 dark:text-white uppercase italic tracking-tight">İzin Yönetimi</h1>
-        </template>
-        <template #trailing>
-            <UButton icon="i-lucide-plus" label="Yeni İzin" color="primary" class="font-bold rounded-xl" @click="openCreateDrawer" />
-        </template>
-      </AdminNavbar>
-    </template>
+    <AdminNavbar />
 
-    <template #body>
-      <UCard class="shadow-sm border-none bg-white dark:bg-gray-900" :ui="{ body: 'p-0', header: 'border-b-0 px-6 py-4' }">
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="bg-gray-50/50 dark:bg-gray-800/50">
-              <tr>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-left">İzin Kodu</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-left">Açıklama</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-left">Oluşturulma Tarihi</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-left">İşlemler</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="permission in items" :key="permission.id" class="border-b border-gray-100 dark:border-gray-800">
-                <td class="px-6 py-4">
-                  <span class="font-bold text-gray-900 dark:text-white">{{ permission.name }}</span>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="text-gray-600 dark:text-gray-300 text-sm">
-                    {{ permission.description || 'Açıklama yok' }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="text-sm">
-                    {{ new Date(permission.createdAt).toLocaleString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <UButton icon="i-lucide-edit-2" color="neutral" variant="ghost" size="xs" @click="openEditDrawer(permission)" />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <UDashboardNavbar title="İzin Yönetimi">
+      <template #right>
+        <UButton
+          label="Yeni İzin"
+          icon="i-lucide-plus"
+          color="primary"
+          @click="openCreateDrawer"
+        />
+      </template>
+    </UDashboardNavbar>
+
+    <UDashboardToolbar>
+      <template #left>
+        <UInput
+          v-model="search"
+          icon="i-lucide-search"
+          placeholder="İzin ara..."
+          class="w-64"
+        />
+      </template>
+    </UDashboardToolbar>
+
+    <div class="flex-1 overflow-y-auto p-4">
+      <UCard
+        :ui="{ body: 'p-0' }"
+        class="flex-1"
+      >
+        <UTable
+          :loading="isLoading"
+          :columns="columns"
+          :data="items"
+          class="w-full"
+        >
+          <template #name-cell="{ row }">
+            <span class="font-bold text-gray-900 dark:text-white">{{ (row.original as any).name }}</span>
+          </template>
+
+          <template #description-cell="{ row }">
+            <span class="text-sm text-gray-500">{{ (row.original as any).description || '-' }}</span>
+          </template>
+
+          <template #createdAt-cell="{ row }">
+            <span class="text-sm">
+              {{ new Date((row.original as any).createdAt).toLocaleString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) }}
+            </span>
+          </template>
+
+          <template #actions-cell="{ row }">
+            <div class="flex items-center gap-2">
+              <UButton
+                icon="i-lucide-edit-2"
+                color="neutral"
+                variant="ghost"
+                size="xs"
+                @click="openEditDrawer(row.original as any)"
+              />
+            </div>
+          </template>
+        </UTable>
+
+        <template
+          v-if="total > limit"
+          #footer
+        >
+          <div class="flex justify-center">
+            <UPagination
+              v-model:page="page"
+              :total="total"
+              :page-count="limit"
+            />
+          </div>
+        </template>
       </UCard>
-    </template>
+    </div>
   </UDashboardPanel>
 
   <!-- Drawer -->
   <ClientOnly>
-    <USlideover v-model:open="isDrawerOpen" title="İzin Yönetimi">
+    <USlideover
+      v-model:open="isDrawerOpen"
+      title="İzin Yönetimi"
+    >
       <template #content>
         <div class="p-6">
-          <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit" id="permission-form">
-            <UFormField label="İzin Kodu" name="name" help="Örnek: users:read, roles:write">
-              <UInput v-model="state.name" placeholder="users:read" class="w-full" />
+          <UForm
+            id="permission-form"
+            :schema="schema"
+            :state="state"
+            class="space-y-6"
+            @submit="onSubmit"
+          >
+            <UFormField
+              label="İzin Kodu"
+              name="name"
+              help="Örnek: users:read, roles:write"
+            >
+              <UInput
+                v-model="state.name"
+                placeholder="users:read"
+                class="w-full"
+              />
             </UFormField>
-            
-            <UFormField label="Açıklama" name="description">
-              <UTextarea v-model="state.description" placeholder="Bu izin ne işe yarar?" class="w-full" />
+
+            <UFormField
+              label="Açıklama"
+              name="description"
+            >
+              <UTextarea
+                v-model="state.description"
+                placeholder="Bu izin ne işe yarar?"
+                class="w-full"
+              />
             </UFormField>
 
             <div class="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-800">
-              <UButton label="İptal" color="neutral" variant="ghost" @click="isDrawerOpen = false" />
-              <UButton type="submit" label="Kaydet" color="primary" :loading="isSubmitting" />
+              <UButton
+                label="İptal"
+                color="neutral"
+                variant="ghost"
+                @click="isDrawerOpen = false"
+              />
+              <UButton
+                type="submit"
+                label="Kaydet"
+                color="primary"
+                :loading="isSubmitting"
+              />
             </div>
           </UForm>
         </div>

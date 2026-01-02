@@ -1,13 +1,7 @@
-export interface NavigationItem {
-  label: string
-  icon?: string
-  to?: string
-  type?: 'label' | 'link'
-  defaultOpen?: boolean
-  children?: NavigationItem[]
-  badge?: string | number
-  permission?: string
-}
+import { allNavigation } from '~~/shared/registry'
+import type { NavigationItem } from '~~/shared/types/navigation'
+
+export { type NavigationItem }
 
 export const navigationItems: NavigationItem[][] = [
   [
@@ -53,38 +47,7 @@ export const navigationItems: NavigationItem[][] = [
       label: 'İçerik Yönetimi',
       icon: 'i-lucide-file-text',
       defaultOpen: true,
-      children: [
-        {
-          label: 'Sayfalar',
-          to: '/admin/pages',
-          icon: 'i-lucide-files',
-          permission: 'pages:read'
-        },
-        {
-          label: 'Blog Yazıları',
-          to: '/admin/blog',
-          icon: 'i-lucide-pen-tool',
-          permission: 'blog:read'
-        },
-        { 
-          label: 'Ürünler', 
-          to: '/admin/urunler', 
-          icon: 'i-lucide-shopping-cart',
-          permission: 'products:read'
-        },
-        { 
-          label: 'Doktor Yorumları', 
-          to: '/admin/doctortestimonial', 
-          icon: 'i-lucide-message-square',
-          permission: 'doctortestimonial:read'
-        },
-        { 
-          label: 'Doktor Profilleri', 
-          to: '/admin/doctorprofile', 
-          icon: 'i-lucide-database',
-          permission: 'doctorprofile:read'
-        }
-      ]
+      children: allNavigation
     },
     {
       label: 'Randevular',

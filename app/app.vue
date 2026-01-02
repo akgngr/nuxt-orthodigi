@@ -21,7 +21,7 @@ useSeoMeta({
   title,
   description,
   ogTitle: title,
-  ogDescription: description,
+  ogDescription: description
 })
 </script>
 
@@ -50,7 +50,7 @@ useSeoMeta({
       </template>
     </UHeader>
 
-    <UMain :class="{ 'p-0': isAdmin }">
+    <UMain :class="{ 'p-0 h-screen overflow-hidden': isAdmin }">
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>

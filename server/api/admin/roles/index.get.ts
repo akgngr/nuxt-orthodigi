@@ -1,17 +1,24 @@
 import { RoleService } from '../../../services/role.service'
-import { requirePermission } from '../../../utils/protect'
-import { PERMISSIONS } from '../../../utils/permissions'
 
 export default defineEventHandler(async (event) => {
-    // await requirePermission(event, PERMISSIONS.ROLES.READ)
+  // await requirePermission(event, PERMISSIONS.ROLES.READ)
 
-    try {
-        return await RoleService.getAllRoles()
-    } catch (error) {
-        console.error('Fetch roles error:', error)
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'Failed to fetch roles'
-        })
-    }
+  try {
+    const query = getQuery(event)
+    const page = parseInt(query.page as string) || 1
+    const limit = parseInt(query.limit as string) || 10
+    const search = query.search as string
+
+    return await RoleService.getAllRoles({
+      page,
+      limit,
+      search
+    })
+  } catch (error) {
+    console.error('Fetch roles error:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to fetch roles'
+    })
+  }
 })

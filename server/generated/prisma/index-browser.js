@@ -130,6 +130,23 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TagScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SessionScalarFieldEnum = {
   id: 'id',
   expiresAt: 'expiresAt',
@@ -195,6 +212,10 @@ exports.Prisma.BlogScalarFieldEnum = {
   jsonLd: 'jsonLd',
   featuredImage: 'featuredImage',
   featuredImageAlt: 'featuredImageAlt',
+  categoryId: 'categoryId',
+  authorId: 'authorId',
+  published: 'published',
+  publishedAt: 'publishedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -265,6 +286,10 @@ exports.Prisma.ProductScalarFieldEnum = {
   slug: 'slug',
   body: 'body',
   media: 'media',
+  titleTag: 'titleTag',
+  metaDescription: 'metaDescription',
+  canonicalUrl: 'canonicalUrl',
+  jsonLd: 'jsonLd',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -277,6 +302,10 @@ exports.Prisma.DoctorTestimonialScalarFieldEnum = {
   image: 'image',
   social_link: 'social_link',
   testimonial: 'testimonial',
+  titleTag: 'titleTag',
+  metaDescription: 'metaDescription',
+  canonicalUrl: 'canonicalUrl',
+  jsonLd: 'jsonLd',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -291,6 +320,10 @@ exports.Prisma.DoctorProfileScalarFieldEnum = {
   pratisen_ozellikleri: 'pratisen_ozellikleri',
   konum_bilgisi: 'konum_bilgisi',
   slug: 'slug',
+  titleTag: 'titleTag',
+  metaDescription: 'metaDescription',
+  canonicalUrl: 'canonicalUrl',
+  jsonLd: 'jsonLd',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -328,6 +361,8 @@ exports.Prisma.JsonNullValueFilter = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Category: 'Category',
+  Tag: 'Tag',
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',

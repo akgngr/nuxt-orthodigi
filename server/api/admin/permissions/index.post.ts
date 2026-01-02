@@ -4,33 +4,33 @@ import { requirePermission } from '../../../utils/protect'
 import { PERMISSIONS } from '../../../utils/permissions'
 
 const createPermissionSchema = z.object({
-    name: z.string().min(1),
-    description: z.string().optional()
+  name: z.string().min(1),
+  description: z.string().optional()
 })
 
 export default defineEventHandler(async (event) => {
-    await requirePermission(event, PERMISSIONS.ROLES.WRITE)
+  await requirePermission(event, PERMISSIONS.ROLES.WRITE)
 
-    const body = await readBody(event)
-    const result = createPermissionSchema.safeParse(body)
+  const body = await readBody(event)
+  const result = createPermissionSchema.safeParse(body)
 
-    if (!result.success) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'Invalid input',
-            data: result.error.errors
-        })
-    }
+  if (!result.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Invalid input',
+      data: result.error.issues
+    })
+  }
 
-    try {
-        return await prisma.permission.create({
-            data: result.data
-        })
-    } catch (error) {
-        console.error('Create permission error:', error)
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'Failed to create permission'
-        })
-    }
+  try {
+    return await prisma.permission.create({
+      data: result.data
+    })
+  } catch (error) {
+    console.error('Create permission error:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to create permission'
+    })
+  }
 })

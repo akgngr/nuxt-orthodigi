@@ -22,8 +22,32 @@ model User {
   sessions      Session[]
   accounts      Account[]
   roles         UserRole[]
+  blogs         Blog[]
 
   @@map("user")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  blogs       Blog[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("category")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  blogs     Blog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tag")
 }
 
 model Session {
@@ -102,6 +126,13 @@ model Blog {
   jsonLd          Json?
   featuredImage   String?
   featuredImageAlt String?
+  categoryId      String?
+  category        Category?       @relation(fields: [categoryId], references: [id])
+  tags            Tag[]
+  authorId        String?
+  author          User?           @relation(fields: [authorId], references: [id])
+  published       Boolean         @default(false)
+  publishedAt     DateTime?
   components      BlogComponent[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -186,28 +217,36 @@ model PageComponent {
 }
 
 model Product {
-  id        String   @id @default(cuid())
-  title     String?  @unique
-  summery   String
-  slug      String   @unique
-  body      String?
-  media     Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(cuid())
+  title           String?  @unique
+  summery         String
+  slug            String   @unique
+  body            String?
+  media           Json
+  titleTag        String?
+  metaDescription String?
+  canonicalUrl    String?
+  jsonLd          Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("urunler")
 }
 
 model DoctorTestimonial {
-  id        String   @id @default(cuid())
-  name  String @unique
-  slug  String @unique
-  unvan  String
-  image  String
-  social_link  Json
-  testimonial  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String   @unique
+  slug            String   @unique
+  unvan           String
+  image           String
+  social_link     Json
+  testimonial     String?
+  titleTag        String?
+  metaDescription String?
+  canonicalUrl    String?
+  jsonLd          Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("doctortestimonial")
 }
@@ -222,6 +261,10 @@ model DoctorProfile {
   pratisen_ozellikleri String?
   konum_bilgisi        Json?
   slug                 String?  @unique
+  titleTag             String?
+  metaDescription      String?
+  canonicalUrl         String?
+  jsonLd               Json?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 

@@ -1,23 +1,26 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  extends: [
+    './modules/pages',
+    './modules/blog',
+    './modules/products',
+    './modules/doctorprofile',
+    './modules/doctortestimonial'
+  ],
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui',
     '@pinia/nuxt'
   ],
 
-  devtools: {
-    enabled: true
-  },
-
   imports: {
     dirs: ['stores']
   },
-  css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/': { prerender: true }
+  devtools: {
+    enabled: true
   },
+  css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -26,6 +29,10 @@ export default defineNuxtConfig({
     public: {
       appUrl: process.env.NUXT_PUBLIC_APP_URL
     }
+  },
+
+  routeRules: {
+    '/': { prerender: true }
   },
   compatibilityDate: '2024-11-01',
 

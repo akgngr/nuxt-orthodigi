@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' nuxt build",
     "dev": "nuxt dev",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -56,7 +56,6 @@
   "devDependencies": {
     "@nuxt/eslint": "^1.12.1",
     "@types/pg": "^8.16.0",
-    "@types/uuid": "^11.0.0",
     "@types/ws": "^8.18.1",
     "eslint": "^9.39.2",
     "tsx": "^4.21.0",

@@ -17,13 +17,13 @@ const error = ref('')
 
 const handleLogin = async () => {
   if (!email.value || !password.value) return
-  
+
   loading.value = true
   error.value = ''
-  
+
   try {
     const { data, error: signInError } = await signIn(email.value, password.value)
-    
+
     if (signInError) {
       error.value = signInError.message || 'Giriş yapılamadı. Lütfen bilgilerinizi kontrol edin.'
     } else if (data) {
@@ -61,44 +61,66 @@ onMounted(() => {
         <!-- Logo & Branding -->
         <div class="text-center mb-10">
           <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary-600 to-indigo-700 text-white shadow-xl shadow-primary-500/20 mb-6 transition-transform group-hover:scale-110 duration-500">
-            <UIcon name="i-lucide-stethoscope" class="w-10 h-10" />
+            <UIcon
+              name="i-lucide-stethoscope"
+              class="w-10 h-10"
+            />
           </div>
-          <h1 class="text-4xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter mb-2">OrthoDigi</h1>
-          <p class="text-gray-500 dark:text-gray-400 font-medium tracking-wide">Yönetim Paneli Girişi</p>
+          <h1 class="text-4xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter mb-2">
+            OrthoDigi
+          </h1>
+          <p class="text-gray-500 dark:text-gray-400 font-medium tracking-wide">
+            Yönetim Paneli Girişi
+          </p>
         </div>
 
         <!-- Form -->
-        <form @submit.prevent="handleLogin" class="space-y-6">
-          <UFormField label="E-posta Adresi" :error="error && !email">
+        <form
+          class="space-y-6"
+          @submit.prevent="handleLogin"
+        >
+          <UFormField
+            label="E-posta Adresi"
+            :error="error && !email"
+          >
             <UInput
               v-model="email"
               type="email"
               placeholder="doktor@orthodigi.com"
               size="xl"
               icon="i-lucide-mail"
-              :ui="{ 
+              :ui="{
                 root: 'rounded-2xl transition-all duration-300',
                 base: 'bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800 focus:bg-white dark:focus:bg-gray-950 px-4 py-4'
               }"
             />
           </UFormField>
 
-          <UFormField label="Şifre" :error="error">
+          <UFormField
+            label="Şifre"
+            :error="error"
+          >
             <UInput
               v-model="password"
               type="password"
               placeholder="••••••••"
               size="xl"
               icon="i-lucide-lock"
-              :ui="{ 
+              :ui="{
                 root: 'rounded-2xl transition-all duration-300',
                 base: 'bg-white/50 dark:bg-gray-950/50 border-gray-200/50 dark:border-gray-800 focus:bg-white dark:focus:bg-gray-950 px-4 py-4 font-mono'
               }"
             />
           </UFormField>
 
-          <div v-if="error" class="bg-destructive/10 text-destructive text-sm font-bold p-4 rounded-2xl border border-destructive/20 flex items-center gap-3 animate-head-shake">
-            <UIcon name="i-lucide-alert-circle" class="w-5 h-5 flex-shrink-0" />
+          <div
+            v-if="error"
+            class="bg-destructive/10 text-destructive text-sm font-bold p-4 rounded-2xl border border-destructive/20 flex items-center gap-3 animate-head-shake"
+          >
+            <UIcon
+              name="i-lucide-alert-circle"
+              class="w-5 h-5 flex-shrink-0"
+            />
             <span>{{ error }}</span>
           </div>
 
@@ -115,9 +137,15 @@ onMounted(() => {
 
         <!-- Footer Actions -->
         <div class="mt-8 flex items-center justify-between text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-2">
-          <ULink to="#" class="hover:text-primary-500 transition-colors">Şifremi Unuttum</ULink>
+          <ULink
+            to="#"
+            class="hover:text-primary-500 transition-colors"
+          >Şifremi Unuttum</ULink>
           <div class="h-1 w-1 rounded-full bg-gray-300 dark:bg-gray-700" />
-          <ULink to="#" class="hover:text-primary-500 transition-colors">Yardım Al</ULink>
+          <ULink
+            to="#"
+            class="hover:text-primary-500 transition-colors"
+          >Yardım Al</ULink>
         </div>
       </div>
 

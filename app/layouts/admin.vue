@@ -1,10 +1,7 @@
 <template>
-  <UDashboardGroup>
+  <UDashboardGroup class="h-screen overflow-hidden">
     <AdminSidebar />
-
-    <UDashboardPanel id="admin-main">
-      <slot />
-    </UDashboardPanel>
+    <slot />
   </UDashboardGroup>
 </template>
 
