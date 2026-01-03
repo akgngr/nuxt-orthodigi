@@ -1,7 +1,10 @@
 export interface FormField {
   id: string
-  type: 'text' | 'email' | 'phone' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'hidden' | 'submit'
+  type: 'text' | 'email' | 'phone' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'hidden' | 'submit' | 'file'
   label: string
+  description?: string
+  hint?: string
+  help?: string
   placeholder?: string
   required?: boolean
   validation?: {

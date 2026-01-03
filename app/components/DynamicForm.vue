@@ -10,11 +10,15 @@
           :label="field.label"
           :name="field.id"
           :required="field.required"
+          :description="field.description"
+          :hint="field.hint"
+          :help="field.help"
         >
           <!-- Text Input -->
           <UInput
             v-if="['text', 'email', 'phone'].includes(field.type)"
             v-model="formState[field.id]"
+            :id="field.id"
             :type="field.type"
             :placeholder="field.placeholder"
             :required="field.required"
@@ -25,6 +29,7 @@
           <UTextarea
             v-else-if="field.type === 'textarea'"
             v-model="formState[field.id]"
+            :id="field.id"
             :placeholder="field.placeholder"
             :required="field.required"
             :class="field.className"
@@ -34,7 +39,8 @@
           <USelect
             v-else-if="field.type === 'select'"
             v-model="formState[field.id]"
-            :options="field.options"
+            :id="field.id"
+            :items="field.options"
             :placeholder="field.placeholder"
             :required="field.required"
             :class="field.className"
@@ -44,26 +50,54 @@
           <URadioGroup
             v-else-if="field.type === 'radio'"
             v-model="formState[field.id]"
-            :options="field.options"
+            :id="field.id"
+            :name="field.id"
+            :items="field.options"
             :required="field.required"
           />
 
           <!-- Checkbox -->
-          <UCheckbox
-            v-else-if="field.type === 'checkbox'"
-            v-model="formState[field.id]"
-            :label="field.label"
-            :required="field.required"
-          />
+          <div v-else-if="field.type === 'checkbox'" :id="field.id" class="space-y-2">
+            <template v-if="field.options && field.options.length > 0">
+              <UCheckbox
+                  v-for="option in field.options"
+                  :key="option.value"
+                  :label="option.label"
+                  :model-value="Array.isArray(formState[field.id]) && formState[field.id].includes(option.value)"
+                  @update:model-value="(val: any) => handleCheckboxChange(field.id, option.value, val)"
+                />
+            </template>
+            <template v-else>
+              <UCheckbox
+                v-model="formState[field.id]"
+                :id="field.id"
+                :label="field.label"
+                :required="field.required"
+              />
+            </template>
+          </div>
 
           <!-- Date Picker -->
           <UInput
             v-else-if="field.type === 'date'"
             v-model="formState[field.id]"
+            :id="field.id"
             type="date"
             :placeholder="field.placeholder"
             :required="field.required"
             :class="field.className"
+          />
+
+          <!-- File Input -->
+          <UInput
+            v-else-if="field.type === 'file'"
+            type="file"
+            :id="field.id"
+            :placeholder="field.placeholder"
+            :required="field.required"
+            :class="field.className"
+            icon="i-lucide-upload"
+            @change="(e: Event) => handleFileChange(field.id, e)"
           />
 
           <!-- Submit Button -->
@@ -126,7 +160,11 @@ const initializeFormState = () => {
   
   props.formDefinition.fields.forEach((field: FormField) => {
     if (field.type === 'checkbox') {
-      state[field.id] = field.defaultValue || false
+      if (field.options && field.options.length > 0) {
+        state[field.id] = []
+      } else {
+        state[field.id] = field.defaultValue === 'true' || field.defaultValue === true
+      }
     } else if (field.type === 'select' || field.type === 'radio') {
       state[field.id] = field.defaultValue || ''
     } else {
@@ -135,6 +173,24 @@ const initializeFormState = () => {
   })
   
   formState.value = state
+}
+
+const handleCheckboxChange = (fieldId: string, value: string, checked: boolean) => {
+  const currentValues = Array.isArray(formState.value[fieldId]) ? formState.value[fieldId] : []
+  if (checked) {
+    formState.value[fieldId] = [...currentValues, value]
+  } else {
+    formState.value[fieldId] = currentValues.filter((v: string) => v !== value)
+  }
+}
+
+const handleFileChange = (fieldId: string, event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    formState.value[fieldId] = target.files[0]
+  } else {
+    formState.value[fieldId] = null
+  }
 }
 
 // Form validation

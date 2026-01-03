@@ -1,12 +1,8 @@
 import type { FormDefinition, FormField, FormSettings } from '../../../../shared/types/form'
+import { prisma } from '../../../../server/utils/prisma'
 
 export class FormService {
-  private prisma: any
-
-  constructor() {
-    // @ts-ignore
-    this.prisma = usePrisma()
-  }
+  private prisma = prisma
 
   async getAllForms(): Promise<FormDefinition[]> {
     const forms = await this.prisma.form.findMany({

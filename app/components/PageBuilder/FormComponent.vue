@@ -5,7 +5,7 @@
     <UFormField label="Select Form" required>
       <USelect
         v-model="component.content.formSlug"
-        :options="formOptions"
+        :items="formOptions"
         placeholder="Choose a form"
         :loading="loading"
       />
@@ -14,21 +14,21 @@
     <UFormField label="Layout">
       <USelect
         v-model="component.content.layout"
-        :options="layoutOptions"
+        :items="layoutOptions"
       />
     </UFormField>
 
     <UFormField label="Spacing">
       <USelect
         v-model="component.content.spacing"
-        :options="spacingOptions"
+        :items="spacingOptions"
       />
     </UFormField>
 
     <UFormField label="Theme">
       <USelect
         v-model="component.content.theme"
-        :options="themeOptions"
+        :items="themeOptions"
       />
     </UFormField>
 

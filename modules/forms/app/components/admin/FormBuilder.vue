@@ -87,33 +87,92 @@
                 <UIcon name="i-lucide-grip-vertical" class="w-4 h-4" />
               </div>
 
-              <div class="flex-1 space-y-2 pointer-events-none">
-                <div class="flex justify-between items-start">
-                  <label class="text-sm font-medium text-gray-700 dark:text-gray-200">
-                    {{ element.label || '(İsimsiz Alan)' }}
-                    <span v-if="element.required" class="text-red-500 ml-0.5">*</span>
-                  </label>
-                  <UBadge color="neutral" variant="soft" size="xs" class="text-[10px] px-1.5 py-0">
-                    {{ getFieldTypeName(element.type) }}
-                  </UBadge>
-                </div>
-
-                <!-- Simple Preview -->
-                <div class="opacity-60">
-                  <UInput v-if="['text', 'email', 'tel', 'url', 'number', 'date'].includes(element.type)" :placeholder="element.placeholder" disabled size="sm" :icon="getFieldIcon(element.type)" />
-                  <UTextarea v-else-if="element.type === 'textarea'" :placeholder="element.placeholder" disabled size="sm" :rows="2" />
-                  <USelect v-else-if="element.type === 'select'" placeholder="Seçiniz..." disabled size="sm" :options="[]" />
-                  <div v-else-if="['radio', 'checkbox'].includes(element.type)" class="flex gap-3">
-                    <div class="flex items-center gap-2">
-                      <div class="w-4 h-4 rounded border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800" />
-                      <span class="text-sm text-gray-400">Seçenek 1</span>
+              <div class="flex-1 pointer-events-none">
+                <UFormField
+                  :label="element.label || '(İsimsiz Alan)'"
+                  :name="element.id"
+                  :required="element.required"
+                  :description="element.description"
+                  :hint="element.hint"
+                  :help="element.help"
+                  class="opacity-80"
+                >
+                  <template #label="{ label }">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                        {{ label }}
+                        <span v-if="element.required" class="text-red-500 ml-0.5">*</span>
+                      </span>
+                      <UBadge color="neutral" variant="soft" size="xs" class="text-[10px] px-1.5 py-0">
+                        {{ getFieldTypeName(element.type) }}
+                      </UBadge>
                     </div>
+                  </template>
+
+                  <!-- Input Previews -->
+                  <UInput 
+                    v-if="['text', 'email', 'tel', 'url', 'number', 'date'].includes(element.type)" 
+                    :id="element.id" 
+                    :placeholder="element.placeholder" 
+                    disabled 
+                    size="sm" 
+                    :icon="getFieldIcon(element.type)" 
+                  />
+                  
+                  <UTextarea 
+                    v-else-if="element.type === 'textarea'" 
+                    :id="element.id" 
+                    :placeholder="element.placeholder" 
+                    disabled 
+                    size="sm" 
+                    :rows="2" 
+                  />
+                  
+                  <USelect 
+                    v-else-if="element.type === 'select'" 
+                    :id="element.id" 
+                    placeholder="Seçiniz..." 
+                    disabled 
+                    size="sm" 
+                    :items="element.options?.map((o: any) => o.label) || []" 
+                  />
+                  
+                  <div v-else-if="element.type === 'radio'" class="space-y-2">
+                    <URadioGroup
+                      :name="element.id"
+                      :items="element.options?.length ? element.options : [{ label: 'Seçenek 1', value: '1' }]"
+                      disabled
+                    />
                   </div>
+                  
+                  <div v-else-if="element.type === 'checkbox'" class="space-y-2">
+                    <template v-if="element.options && element.options.length > 0">
+                      <UCheckbox 
+                        v-for="(opt, i) in element.options" 
+                        :key="i" 
+                        :label="opt.label" 
+                        disabled 
+                      />
+                    </template>
+                    <UCheckbox v-else :label="element.label" disabled />
+                  </div>
+
+                  <div v-else-if="element.type === 'file'">
+                    <UInput type="file" disabled size="sm" icon="i-lucide-upload" />
+                  </div>
+
+                  <UButton 
+                    v-else-if="element.type === 'submit'"
+                    :label="element.label || 'Gönder'"
+                    block
+                    disabled
+                  />
+
                   <div v-else class="h-8 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center px-3 text-xs text-gray-400">
                     <UIcon :name="getFieldIcon(element.type)" class="mr-2 w-4 h-4" />
                     {{ getFieldTypeName(element.type) }}
                   </div>
-                </div>
+                </UFormField>
               </div>
 
               <div class="flex flex-col gap-1 pl-2 border-l border-gray-100 dark:border-gray-800 ml-2" @click.stop>
@@ -145,13 +204,26 @@
                   <UInput v-model="element.label" placeholder="Alan Adı" size="sm" />
                 </UFormField>
                 
-                <UFormField label="Yer Tutucu" class="col-span-1">
+                <UFormField label="Yer Tutucu" class="col-span-1" v-if="!['submit', 'checkbox', 'radio', 'file', 'hidden'].includes(element.type)">
                   <UInput v-model="element.placeholder" placeholder="Örnek metin..." size="sm" />
                 </UFormField>
 
                 <div class="col-span-1 flex items-end pb-2">
-                  <UCheckbox v-model="element.required" label="Zorunlu Alan" />
+                  <UCheckbox v-model="element.required" label="Zorunlu Alan" v-if="!['submit', 'hidden'].includes(element.type)" />
                 </div>
+              </div>
+
+              <!-- Extra FormField Props -->
+              <div class="grid grid-cols-3 gap-3" v-if="element.type !== 'hidden'">
+                <UFormField label="Açıklama (Description)" class="col-span-1">
+                   <UInput v-model="element.description" placeholder="Alt açıklama" size="sm" />
+                </UFormField>
+                <UFormField label="İpucu (Hint)" class="col-span-1">
+                   <UInput v-model="element.hint" placeholder="Sağ üst ipucu" size="sm" />
+                </UFormField>
+                <UFormField label="Yardım (Help)" class="col-span-1">
+                   <UInput v-model="element.help" placeholder="Hata/Yardım metni" size="sm" />
+                </UFormField>
               </div>
 
               <!-- Options for select/radio/checkbox -->
@@ -172,8 +244,8 @@
                 </div>
               </div>
 
-              <!-- Advanced Settings Accordion (Simplified) -->
-              <UAccordion :items="[{ label: 'Gelişmiş Ayarlar', slot: 'advanced' }]" :ui="{ wrapper: 'w-full' }">
+              <!-- Advanced Settings Accordion -->
+              <UAccordion :items="[{ label: 'Gelişmiş Ayarlar', slot: 'advanced' }]" class="w-full">
                 <template #advanced>
                   <div class="pt-2 space-y-3">
                     <div class="grid grid-cols-2 gap-3">
@@ -185,7 +257,7 @@
                        </UFormField>
                     </div>
                     <USeparator />
-                     <div class="grid grid-cols-2 gap-3">
+                     <div class="grid grid-cols-2 gap-3" v-if="!['submit', 'checkbox', 'radio', 'file', 'hidden'].includes(element.type)">
                        <UFormField label="Min Karakter">
                           <UInput v-model="element.validation.minLength" type="number" size="sm" />
                        </UFormField>
@@ -236,11 +308,18 @@
 
 <script setup lang="ts">
 import draggable from 'vuedraggable'
-import type { FormDefinition, FormField } from '../../../../../shared/types/form'
+import type { FormDefinition, FormField } from '~~/shared/types/form'
+import { slugify } from '~~/utils/slugify'
 
 const formData = defineModel<FormDefinition>({ required: true })
 
-// Builder State
+// Auto-generate slug from title
+watch(() => formData.value.title, (newVal) => {
+  if (newVal && !formData.value.id) { // Only generate if creating new form
+    formData.value.slug = slugify(newVal)
+  }
+})
+
 const expandedFieldIndex = ref<number | null>(null)
 
 const toggleExpand = (index: number) => {
@@ -289,6 +368,8 @@ const fieldTypes = [
   { label: 'Onay Kutusu', value: 'checkbox' },
   { label: 'Radyo Butonları', value: 'radio' },
   { label: 'Tarih Seçici', value: 'date' },
+  { label: 'Dosya Yükleme', value: 'file' },
+  { label: 'Buton', value: 'submit' },
   { label: 'Gizli Alan', value: 'hidden' }
 ]
 
@@ -305,6 +386,7 @@ const getFieldIcon = (type: string) => {
     radio: 'i-lucide-circle-dot',
     checkbox: 'i-lucide-check-square',
     file: 'i-lucide-upload',
+    submit: 'i-lucide-mouse-pointer-2',
     hidden: 'i-lucide-eye-off'
   }
   return icons[type] || 'i-lucide-box'
@@ -320,16 +402,23 @@ const getFieldTypeName = (type: string) => {
     radio: 'Tekli Seçim',
     checkbox: 'Çoklu Seçim',
     date: 'Tarih',
+    file: 'Dosya',
+    submit: 'Buton',
     hidden: 'Gizli'
   }
   return names[type] || type
 }
 
 const cloneField = (fieldPrototype: any) => {
+  const uniqueId = `field_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
   return {
-    id: `field_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+    id: uniqueId,
     type: fieldPrototype.value,
-    label: fieldPrototype.label,
+    label: fieldPrototype.value === 'submit' ? 'Gönder' : fieldPrototype.label,
+    description: '',
+    hint: '',
+    help: '',
     placeholder: '',
     required: false,
     options: [],
