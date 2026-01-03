@@ -1,0 +1,22 @@
+--- a/modules/pages/app/pages/admin/pages/index.vue
++++ b/modules/pages/app/pages/admin/pages/index.vue
+@@ -381,7 +381,8 @@ const componentTypes = [
+   { label: 'Metin Bloğu', value: 'text', icon: 'i-lucide-align-left' },
+   { label: 'Galeri', value: 'gallery', icon: 'i-lucide-image' },
+   { label: 'CTA (Eylem Çağrısı)', value: 'cta', icon: 'i-lucide-mouse-pointer-click' },
+-  { label: 'Özellikler', value: 'features', icon: 'i-lucide-list-checks' }
++  { label: 'Özellikler', value: 'features', icon: 'i-lucide-list-checks' },
++  { label: 'Form', value: 'form', icon: 'i-lucide-form-input' }
+ ]
+ 
+ async function addComponent(type: string) {
+@@ -393,7 +394,8 @@ async function addComponent(type: string) {
+       text: { body: '<p>Metin içeriği buraya gelecek...</p>' },
+       gallery: { items: [] },
+       cta: { title: 'Harekete Geçin', description: '', buttonLabel: 'Tıklayın', buttonUrl: '#' },
+-      features: { items: [] }
++      features: { items: [] },
++      form: { formSlug: '', layout: 'vertical', spacing: 'normal', theme: 'default' }
+     }
+ 
+     const newComponent = await $fetch(`/api/admin/pages/${selectedPage.value.id}/components`, {

@@ -270,3 +270,30 @@ model DoctorProfile {
 
   @@map("doctorprofile")
 }
+
+// Form Builder Models
+model Form {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  title       String
+  description String?
+  fields      Json // FormField[]
+  settings    Json // FormSettings
+  submissions FormSubmission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("form")
+}
+
+model FormSubmission {
+  id        String   @id @default(cuid())
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  data      Json // Form submission data
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@map("form_submission")
+}

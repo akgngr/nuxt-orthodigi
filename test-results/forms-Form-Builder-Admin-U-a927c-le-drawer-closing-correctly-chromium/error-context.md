@@ -1,0 +1,68 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: OrthoDigi
+        - generic [ref=e12]: Admin Panel
+      - navigation "Main" [ref=e15]:
+        - list [ref=e16]:
+          - listitem [ref=e17]:
+            - generic [ref=e19]: Yönetim
+          - listitem [ref=e20]:
+            - button "İçerik Yönetimi" [expanded] [ref=e21]:
+              - generic [ref=e23]: İçerik Yönetimi
+            - region "İçerik Yönetimi" [ref=e26]:
+              - list [ref=e27]:
+                - listitem [ref=e28]:
+                  - link "Formlar" [ref=e29] [cursor=pointer]:
+                    - /url: /admin/forms
+                    - generic [ref=e31]: Formlar
+      - link "Çıkış Yap" [ref=e34] [cursor=pointer]:
+        - /url: /login
+        - generic [ref=e36]: Çıkış Yap
+    - separator
+    - generic [ref=e37]:
+      - generic [ref=e38]:
+        - generic:
+          - heading [level=1]
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - textbox "Ara..." [ref=e44]
+            - generic [ref=e45]: Ctrl
+            - generic [ref=e46]: k
+          - generic [ref=e47]:
+            - button [ref=e48]
+            - button "Theme" [ref=e50]
+          - button "Admin" [ref=e52]:
+            - img "Admin" [ref=e54]
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - generic [ref=e58]:
+            - heading "Form Oluşturucu" [level=1] [ref=e59]
+            - paragraph [ref=e60]: Formları oluşturun, alanları düzenleyin ve gönderimleri takip edin.
+          - button "Yeni Form Oluştur" [active] [ref=e61]:
+            - generic [ref=e63]: Yeni Form Oluştur
+        - paragraph [ref=e66]: Henüz form oluşturulmamış
+    - text: "* *"
+  - generic:
+    - img
+  - generic:
+    - generic:
+      - generic:
+        - button "Go to parent" [disabled]
+        - button "Open in editor"
+        - button "Close"
+  - generic [ref=e67]:
+    - button "Toggle Nuxt DevTools" [ref=e68] [cursor=pointer]:
+      - img [ref=e69]
+    - generic "Page load time" [ref=e72]:
+      - generic [ref=e73]: "404"
+      - generic [ref=e74]: ms
+    - button "Toggle Component Inspector" [ref=e76] [cursor=pointer]:
+      - img [ref=e77]
+  - region "Notifications (F8)":
+    - list
+```

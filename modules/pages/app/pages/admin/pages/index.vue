@@ -2,6 +2,7 @@
 import { ref, computed, reactive, watch } from 'vue'
 import { z } from 'zod'
 import type { FormSubmitEvent, EditorToolbarItem, EditorSuggestionMenuItem } from '@nuxt/ui'
+import { slugify } from '../../../../../../utils/slugify'
 
 // --- Editor Configuration ---
 const toolbarItems: EditorToolbarItem[][] = [
@@ -142,45 +143,9 @@ function toggleFullscreen() {
   }, 100)
 }
 
-// --- Slugify Helper ---
-function slugify(text: string) {
-  const trMap: Record<string, string> = {
-    ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u',
-    Ç: 'c', Ğ: 'g', İ: 'i', Ö: 'o', Ş: 's', Ü: 'u'
-  }
-  return text
-    .toString()
-    .toLowerCase()
-    .replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m] ?? m) // Türkçe karakterleri dönüştür
-    .replace(/\s+/g, '-') // Boşlukları - ile değiştir
-    .replace(/[^\w-]+/g, '') // Alfanümerik olmayanları kaldır
-    .replace(/--+/g, '-') // Birden fazla -'yi teke indir
-    .replace(/^-+/, '') // Başındaki -'yi kaldır
-    .replace(/-+$/, '') // Sonundaki -'yi kaldır
-}
 
-interface Page {
-  id: string
-  slug: string
-  titleTag: string
-  metaDescription?: string
-  canonicalUrl?: string
-  h1Title: string
-  bodyText?: string
-  jsonLd?: any
-  featuredImage?: string
-  featuredImageAlt?: string
-  components: PageComponent[]
-  createdAt: string
-  updatedAt: string
-}
 
-interface PageComponent {
-  id: string
-  type: string
-  content: any
-  order: number
-}
+import type { Page, PageComponent } from '../../../../../../shared/types/page'
 
 definePageMeta({
   layout: 'admin',
@@ -911,7 +876,7 @@ if (pagesError.value) {
                   Bileşenleri ekleyin, düzenleyin ve sıralayın.
                 </p>
               </div>
-              <UDropdown
+              <UDropdownMenu
                 :items="[componentTypes.map(t => ({ label: t.label, icon: t.icon, click: () => addComponent(t.value) }))]"
                 :ui="{ width: 'w-56' }"
               >
@@ -920,7 +885,7 @@ if (pagesError.value) {
                   icon="i-lucide-plus"
                   color="primary"
                 />
-              </UDropdown>
+              </UDropdownMenu>
             </div>
 
             <div class="flex-1 overflow-y-auto space-y-4 pr-2">

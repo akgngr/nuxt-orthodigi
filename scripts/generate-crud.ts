@@ -2,6 +2,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { createInterface } from 'node:readline/promises'
 import { execSync } from 'node:child_process'
+import { slugify } from '../utils/slugify'
 
 const rl = createInterface({
   input: process.stdin,
@@ -16,19 +17,6 @@ interface Field {
   isUnique: boolean
   slugSource?: string
   inTable: boolean
-}
-
-function toSlug(text: string, separator: string = '_') {
-  const trMap: Record<string, string> = {
-    ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u',
-    Ç: 'c', Ğ: 'g', İ: 'i', Ö: 'o', Ş: 's', Ü: 'u'
-  }
-  return text
-    .toString()
-    .replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m] ?? m)
-    .replace(/\s+/g, separator)
-    .replace(/[^\w_]+/g, '')
-    .toLowerCase()
 }
 
 function toCamelCase(str: string) {
@@ -57,7 +45,7 @@ async function main() {
       break
     }
 
-    const defaultName = toSlug(fieldLabel)
+    const defaultName = slugify(fieldLabel, '_')
     const fieldNameInput = await rl.question(`Veritabanı alan adı [${defaultName}]: `)
     const fieldName = fieldNameInput || defaultName
 
@@ -493,28 +481,14 @@ import { ref, reactive, computed, watch } from 'vue'
 import { z } from 'zod'
 import type { FormSubmitEvent, TableColumn, EditorToolbarItem, EditorSuggestionMenuItem } from '@nuxt/ui'
 import { useFetch, useRuntimeConfig, useToast } from '#imports'
+import { slugify } from '~/utils/slugify'
 
 definePageMeta({
   layout: 'admin',
   middleware: 'auth'
 })
 
-// --- Slugify Helper ---
-function slugify(text: string) {
-  const trMap: Record<string, string> = {
-    'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u',
-    'Ç': 'c', 'Ğ': 'g', 'İ': 'i', 'Ö': 'o', 'Ş': 's', 'Ü': 'u'
-  }
-  return text
-    .toString()
-    .toLowerCase()
-    .replace(/[çğıöşüÇĞİÖŞÜ]/g, (m) => trMap[m] ?? m)
-    .replace(/\\s+/g, '-')
-    .replace(/[^\\w-]+/g, '')
-    .replace(/--+/g, '-')
-    .replace(/^-+/, '')
-    .replace(/-+$/, '')
-}
+
 
 ${hasLongText
   ? `

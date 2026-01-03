@@ -2,6 +2,7 @@
 import { ref, computed, reactive, watch } from 'vue'
 import { z } from 'zod'
 import type { FormSubmitEvent, EditorToolbarItem, EditorSuggestionMenuItem } from '@nuxt/ui'
+import { slugify } from '../../../../../utils/slugify'
 
 // --- Editor Configuration ---
 const toolbarItems: EditorToolbarItem[][] = [
@@ -137,22 +138,7 @@ function toggleFullscreen() {
   }, 100)
 }
 
-// --- Slugify Helper ---
-function slugify(text: string) {
-  const trMap: Record<string, string> = {
-    ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u',
-    Ç: 'c', Ğ: 'g', İ: 'i', Ö: 'o', Ş: 's', Ü: 'u'
-  }
-  return text
-    .toString()
-    .toLowerCase()
-    .replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m] ?? m)
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]+/g, '')
-    .replace(/--+/g, '-')
-    .replace(/^-+/, '')
-    .replace(/-+$/, '')
-}
+
 
 interface Blog {
   id: string
@@ -1003,7 +989,7 @@ if (blogsError.value) {
                   Bileşenleri ekleyin, düzenleyin ve sıralayın.
                 </p>
               </div>
-              <UDropdown
+              <UDropdownMenu
                 :items="[componentTypes.map(t => ({ label: t.label, icon: t.icon, click: () => addComponent(t.value) }))]"
                 :ui="{ width: 'w-56' }"
               >
@@ -1012,7 +998,7 @@ if (blogsError.value) {
                   icon="i-lucide-plus"
                   color="primary"
                 />
-              </UDropdown>
+              </UDropdownMenu>
             </div>
 
             <div class="flex-1 overflow-y-auto space-y-4 pr-2">

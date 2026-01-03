@@ -1,0 +1,17 @@
+--- a/modules/pages/app/pages/admin/pages/index.vue
++++ b/modules/pages/app/pages/admin/pages/index.vue
+@@ -1065,6 +1065,12 @@ const suggestionItems: EditorSuggestionMenuItem[][] = [
+               </div>
+             </div>
+ 
++            <!-- Form Editor -->
++            <div
++              v-else-if="selectedComponent.type === 'form'"
++              class="space-y-4"
++            >
++              <PageBuilderFormComponent :component="selectedComponent" />
++            </div>
++
+             <!-- Fallback for other types -->
+             <div
+               v-else

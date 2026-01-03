@@ -2,28 +2,14 @@
 import { ref, computed, reactive, watch } from 'vue'
 import { z } from 'zod'
 import type { FormSubmitEvent, TableColumn, EditorToolbarItem } from '@nuxt/ui'
+import { slugify } from '../../../../../utils/slugify'
 
 definePageMeta({
   layout: 'admin',
   middleware: 'auth'
 })
 
-// --- Slugify Helper ---
-function slugify(text: string) {
-  const trMap: Record<string, string> = {
-    ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u',
-    Ç: 'c', Ğ: 'g', İ: 'i', Ö: 'o', Ş: 's', Ü: 'u'
-  }
-  return text
-    .toString()
-    .toLowerCase()
-    .replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m] ?? m)
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]+/g, '')
-    .replace(/--+/g, '-')
-    .replace(/^-+/, '')
-    .replace(/-+$/, '')
-}
+
 
 // --- Editor Configuration ---
 const toolbarItems: EditorToolbarItem[][] = [

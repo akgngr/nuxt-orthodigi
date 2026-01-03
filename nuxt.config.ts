@@ -5,7 +5,8 @@ export default defineNuxtConfig({
     './modules/blog',
     './modules/products',
     './modules/doctorprofile',
-    './modules/doctortestimonial'
+    './modules/doctortestimonial',
+    './modules/forms'
   ],
   modules: [
     '@nuxt/eslint',
@@ -34,9 +35,10 @@ export default defineNuxtConfig({
   routeRules: {
     '/': { prerender: true }
   },
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: '2026-01-02',
 
   nitro: {
+    compatibilityDate: '2026-01-02',
     esbuild: {
       options: {
         target: 'es2022'
@@ -47,6 +49,11 @@ export default defineNuxtConfig({
   vite: {
     build: {
       target: 'es2022'
+    },
+    server: {
+      hmr: {
+        port: 24679
+      }
     }
   },
 

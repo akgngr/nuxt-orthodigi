@@ -7,7 +7,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const { data: sessionData } = await useAsyncData('auth-session', async () => {
     const headers = import.meta.server ? useRequestHeaders(['cookie']) : undefined
 
-    console.log('[AuthPlugin] Fetching session...', import.meta.server ? 'Server' : 'Client')
+    //console.log('[AuthPlugin] Fetching session...', import.meta.server ? 'Server' : 'Client')
     const { data } = await authClient.getSession({
       fetchOptions: {
         headers: headers as any
@@ -17,7 +17,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   })
 
   if (sessionData.value) {
-    console.log('[AuthPlugin] Session hydrated:', sessionData.value.user.email)
+    //console.log('[AuthPlugin] Session hydrated:', sessionData.value.user.email)
     authStore.user = sessionData.value.user
     authStore.session = sessionData.value.session
 

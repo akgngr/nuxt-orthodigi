@@ -93,7 +93,7 @@ const filteredNavigationItems = computed(() => {
           block
           class="rounded-xl hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500 transition-all font-bold"
           label="Çıkış Yap"
-          to="/admin/login"
+          to="/login"
         />
       </div>
     </template>

@@ -328,6 +328,26 @@ exports.Prisma.DoctorProfileScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.FormScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  description: 'description',
+  fields: 'fields',
+  settings: 'settings',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FormSubmissionScalarFieldEnum = {
+  id: 'id',
+  formId: 'formId',
+  data: 'data',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -377,7 +397,9 @@ exports.Prisma.ModelName = {
   PageComponent: 'PageComponent',
   Product: 'Product',
   DoctorTestimonial: 'DoctorTestimonial',
-  DoctorProfile: 'DoctorProfile'
+  DoctorProfile: 'DoctorProfile',
+  Form: 'Form',
+  FormSubmission: 'FormSubmission'
 };
 
 /**

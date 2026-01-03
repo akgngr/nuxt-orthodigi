@@ -15,13 +15,13 @@ export const useAuthStore = defineStore('auth', () => {
   // Actions
   const fetchPermissions = async () => {
     try {
-      console.log('[AuthStore] Fetching permissions...')
+      // console.log('[AuthStore] Fetching permissions...')
       const headers = import.meta.server ? useRequestHeaders(['cookie']) : {}
       const { permissions: perms } = await $fetch<{ permissions: string[] }>('/api/auth/permissions', {
         headers: headers as any
       })
-      console.log('[AuthStore] Permissions fetched:', perms)
-      permissions.value = perms
+      // console.log('[AuthStore] Permissions fetched:', perms)
+      //permissions.value = perms
     } catch (e) {
       console.error('[AuthStore] Failed to fetch permissions:', e)
       permissions.value = []
@@ -42,7 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
       })
 
       if (data?.session) {
-        console.log('[AuthStore] Session found:', data.user.email)
+        //console.log('[AuthStore] Session found:', data.user.email)
         user.value = data.user
         session.value = data.session
         await fetchPermissions()
