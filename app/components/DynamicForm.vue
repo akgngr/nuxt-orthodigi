@@ -2,114 +2,10 @@
   <div :class="formContainerClass">
     <UForm :state="formState" @submit="handleSubmit" :validate="validateForm">
       <div v-for="field in formDefinition.fields" :key="field.id" class="space-y-2">
-        <template v-if="field.type === 'hidden'">
-          <input type="hidden" :name="field.id" v-model="formState[field.id]" />
-        </template>
-        <UFormField
-          v-else
-          :label="field.label"
-          :name="field.id"
-          :required="field.required"
-          :description="field.description"
-          :hint="field.hint"
-          :help="field.help"
-        >
-          <!-- Text Input -->
-          <UInput
-            v-if="['text', 'email', 'phone'].includes(field.type)"
-            v-model="formState[field.id]"
-            :id="field.id"
-            :type="field.type"
-            :placeholder="field.placeholder"
-            :required="field.required"
-            :class="field.className"
-          />
-
-          <!-- Textarea -->
-          <UTextarea
-            v-else-if="field.type === 'textarea'"
-            v-model="formState[field.id]"
-            :id="field.id"
-            :placeholder="field.placeholder"
-            :required="field.required"
-            :class="field.className"
-          />
-
-          <!-- Select -->
-          <USelect
-            v-else-if="field.type === 'select'"
-            v-model="formState[field.id]"
-            :id="field.id"
-            :items="field.options"
-            :placeholder="field.placeholder"
-            :required="field.required"
-            :class="field.className"
-          />
-
-          <!-- Radio Buttons -->
-          <URadioGroup
-            v-else-if="field.type === 'radio'"
-            v-model="formState[field.id]"
-            :id="field.id"
-            :name="field.id"
-            :items="field.options"
-            :required="field.required"
-          />
-
-          <!-- Checkbox -->
-          <div v-else-if="field.type === 'checkbox'" :id="field.id" class="space-y-2">
-            <template v-if="field.options && field.options.length > 0">
-              <UCheckbox
-                  v-for="option in field.options"
-                  :key="option.value"
-                  :label="option.label"
-                  :model-value="Array.isArray(formState[field.id]) && formState[field.id].includes(option.value)"
-                  @update:model-value="(val: any) => handleCheckboxChange(field.id, option.value, val)"
-                />
-            </template>
-            <template v-else>
-              <UCheckbox
-                v-model="formState[field.id]"
-                :id="field.id"
-                :label="field.label"
-                :required="field.required"
-              />
-            </template>
-          </div>
-
-          <!-- Date Picker -->
-          <UInput
-            v-else-if="field.type === 'date'"
-            v-model="formState[field.id]"
-            :id="field.id"
-            type="date"
-            :placeholder="field.placeholder"
-            :required="field.required"
-            :class="field.className"
-          />
-
-          <!-- File Input -->
-          <UInput
-            v-else-if="field.type === 'file'"
-            type="file"
-            :id="field.id"
-            :placeholder="field.placeholder"
-            :required="field.required"
-            :class="field.className"
-            icon="i-lucide-upload"
-            @change="(e: Event) => handleFileChange(field.id, e)"
-          />
-
-          <!-- Submit Button -->
-          <UButton
-            v-else-if="field.type === 'submit'"
-            type="submit"
-            :label="field.label || 'Submit'"
-            :loading="submitting"
-            :class="field.className"
-            block
-          />
-        </UFormField>
+        <DynamicFormField 
+          :field="field" 
+          :state="formState" 
+        />
       </div>
 
       <!-- Honeypot field for spam protection -->
@@ -158,20 +54,30 @@ const honeypot = ref('')
 const initializeFormState = () => {
   const state: Record<string, any> = {}
   
-  props.formDefinition.fields.forEach((field: FormField) => {
-    if (field.type === 'checkbox') {
-      if (field.options && field.options.length > 0) {
-        state[field.id] = []
-      } else {
-        state[field.id] = field.defaultValue === 'true' || field.defaultValue === true
+  const processFields = (fields: FormField[]) => {
+    fields.forEach((field: FormField) => {
+      if (field.type === 'row' && field.columns) {
+        field.columns.forEach(col => {
+          processFields(col.fields)
+        })
+        return
       }
-    } else if (field.type === 'select' || field.type === 'radio') {
-      state[field.id] = field.defaultValue || ''
-    } else {
-      state[field.id] = field.defaultValue || ''
-    }
-  })
-  
+
+      if (field.type === 'checkbox') {
+        if (field.options && field.options.length > 0) {
+          state[field.id] = []
+        } else {
+          state[field.id] = field.defaultValue === 'true' || field.defaultValue === true
+        }
+      } else if (field.type === 'select' || field.type === 'radio') {
+        state[field.id] = field.defaultValue || undefined
+      } else {
+        state[field.id] = field.defaultValue || ''
+      }
+    })
+  }
+
+  processFields(props.formDefinition.fields)
   formState.value = state
 }
 
@@ -193,31 +99,47 @@ const handleFileChange = (fieldId: string, event: Event) => {
   }
 }
 
+// Provide handlers to children
+provide('handleCheckboxChange', handleCheckboxChange)
+provide('handleFileChange', handleFileChange)
+provide('formSubmitting', submitting)
+
 // Form validation
 const validateForm = (state: Record<string, any>) => {
   const errors: { name: string, message: string }[] = []
   
-  props.formDefinition.fields.forEach((field: FormField) => {
-    if (field.required && !state[field.id]) {
-      errors.push({ name: field.id, message: `${field.label} is required` })
-    }
-    
-    if (field.validation && state[field.id]) {
-      const value = state[field.id]
-      
-    if (field.validation?.pattern && !new RegExp(field.validation.pattern).test(value)) {
-        errors.push({ name: field.id, message: `${field.label} formatı geçersiz` })
+  const processValidation = (fields: FormField[]) => {
+    fields.forEach((field: FormField) => {
+      if (field.type === 'row' && field.columns) {
+        field.columns.forEach(col => {
+          processValidation(col.fields)
+        })
+        return
+      }
+
+      if (field.required && !state[field.id]) {
+        errors.push({ name: field.id, message: `${field.label} is required` })
       }
       
-      if (field.validation?.minLength && value.length < field.validation.minLength) {
-        errors.push({ name: field.id, message: `${field.label} en az ${field.validation.minLength} karakter olmalıdır` })
+      if (field.validation && state[field.id]) {
+        const value = state[field.id]
+        
+        if (field.validation?.pattern && !new RegExp(field.validation.pattern).test(value)) {
+          errors.push({ name: field.id, message: `${field.label} formatı geçersiz` })
+        }
+        
+        if (field.validation?.minLength && value.length < field.validation.minLength) {
+          errors.push({ name: field.id, message: `${field.label} en az ${field.validation.minLength} karakter olmalıdır` })
+        }
+        
+        if (field.validation?.maxLength && value.length > field.validation.maxLength) {
+          errors.push({ name: field.id, message: `${field.label} en fazla ${field.validation.maxLength} karakter olmalıdır` })
+        }
       }
-      
-      if (field.validation?.maxLength && value.length > field.validation.maxLength) {
-        errors.push({ name: field.id, message: `${field.label} en fazla ${field.validation.maxLength} karakter olmalıdır` })
-      }
-    }
-  })
+    })
+  }
+  
+  processValidation(props.formDefinition.fields)
   
   return errors
 }

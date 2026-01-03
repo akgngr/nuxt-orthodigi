@@ -25,12 +25,12 @@ export class SystemService {
 
     // 2. Admin Rolünü Oluştur veya Güncelle
     const adminRole = await prisma.role.upsert({
-      where: { name: 'Admin' },
+      where: { name: 'admin' },
       update: {
         description: 'Tüm yetkilere sahip yönetici rolü'
       },
       create: {
-        name: 'Admin',
+        name: 'admin',
         description: 'Tüm yetkilere sahip yönetici rolü'
       }
     })

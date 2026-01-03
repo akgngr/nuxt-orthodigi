@@ -1,6 +1,6 @@
 export interface FormField {
   id: string
-  type: 'text' | 'email' | 'phone' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'hidden' | 'submit' | 'file'
+  type: 'text' | 'email' | 'phone' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'hidden' | 'submit' | 'file' | 'row'
   label: string
   description?: string
   hint?: string
@@ -18,6 +18,11 @@ export interface FormField {
   options?: Array<{
     label: string
     value: string
+  }>
+  columns?: Array<{
+    id: string
+    fields: FormField[]
+    width?: number // 1-12 grid width, optional
   }>
   className?: string
   order: number

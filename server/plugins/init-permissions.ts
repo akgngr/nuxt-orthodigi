@@ -35,6 +35,25 @@ export default defineNitroPlugin(async (_nitroApp) => {
         }
       }
     })
+
+    // 4. Migrate 'Admin' (capitalized) users to 'admin' (lowercase) if exists
+    // This fixes issues where some services used 'Admin' and others 'admin'
+    const oldAdminRole = await prisma.role.findUnique({ where: { name: 'Admin' } })
+    if (oldAdminRole && oldAdminRole.id !== adminRole.id) {
+      const userRoles = await prisma.userRole.findMany({ where: { roleId: oldAdminRole.id } })
+      for (const ur of userRoles) {
+        // Check if user already has 'admin' role
+        const exists = await prisma.userRole.findUnique({
+          where: { userId_roleId: { userId: ur.userId, roleId: adminRole.id } }
+        })
+        if (!exists) {
+          console.log(`[Permissions] Migrating user ${ur.userId} from Admin to admin role`)
+          await prisma.userRole.create({
+            data: { userId: ur.userId, roleId: adminRole.id }
+          })
+        }
+      }
+    }
   } catch (error) {
     console.error('[Permissions] Error during initialization:', error)
   }

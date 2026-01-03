@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
         headers: headers as any
       })
       // console.log('[AuthStore] Permissions fetched:', perms)
-      //permissions.value = perms
+      permissions.value = perms
     } catch (e) {
       console.error('[AuthStore] Failed to fetch permissions:', e)
       permissions.value = []
