@@ -98,79 +98,111 @@ model Verification {
 model Patient {
   id           String        @id @default(cuid())
   name         String
-  email        String        @unique
+  email        String?
   phone        String?
+  tcNo         String?       @unique
+  birthDate    DateTime?
+  gender       String?
+  address      String?
+  notes        String?
+  status       String        @default("active") // active, passive, archived
+  appointments Appointment[]
+  treatments   Treatment[]
+  payments     Payment[]
+  files        PatientFile[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  appointments Appointment[]
+
+  @@map("patient")
 }
 
 model Appointment {
-  id        String   @id @default(cuid())
-  date      DateTime
-  status    String // Pending, Confirmed, Cancelled
-  patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  status      String   @default("scheduled") // scheduled, completed, cancelled, no_show
+  type        String? // consultation, checkup, treatment, etc.
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("appointment")
 }
 
-model Blog {
-  id              String          @id @default(cuid())
-  slug            String          @unique
-  titleTag        String
-  metaDescription String?
-  canonicalUrl    String?
-  h1Title         String
-  bodyText        String?
-  jsonLd          Json?
-  featuredImage   String?
-  featuredImageAlt String?
-  categoryId      String?
-  category        Category?       @relation(fields: [categoryId], references: [id])
-  tags            Tag[]
-  authorId        String?
-  author          User?           @relation(fields: [authorId], references: [id])
-  published       Boolean         @default(false)
-  publishedAt     DateTime?
-  components      BlogComponent[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+model Treatment {
+  id          String   @id @default(cuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  status      String   @default("planned") // planned, in_progress, completed
+  startDate   DateTime
+  endDate     DateTime?
+  cost        Decimal?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@map("blog")
+  @@map("treatment")
 }
 
-model BlogComponent {
-  id        String   @id @default(cuid())
-  type      String // hero, text, gallery, cta, etc.
-  content   Json // Component specific data
-  order     Int      @default(0)
-  blogId    String
-  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Payment {
+  id          String   @id @default(cuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  amount      Decimal
+  type        String // cash, credit_card, transfer
+  status      String   @default("paid") // paid, pending, cancelled
+  description String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@map("blog_component")
+  @@map("payment")
 }
 
-// RBAC Models
+model PatientFile {
+  id          String   @id @default(cuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  name        String
+  url         String
+  type        String
+  size        Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("patient_file")
+}
+
+// RBAC
 model Role {
-  id          String       @id @default(cuid())
-  name        String       @unique
+  id          String     @id @default(cuid())
+  name        String     @unique
   description String?
   permissions Permission[]
   users       UserRole[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("role")
 }
 
 model Permission {
   id          String   @id @default(cuid())
-  name        String   @unique // e.g., "users:read", "users:write"
+  action      String // create, read, update, delete
+  resource    String // users, patients, appointments, etc.
   description String?
   roles       Role[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@unique([action, resource])
+  @@map("permission")
 }
 
 model UserRole {
@@ -183,68 +215,73 @@ model UserRole {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, roleId])
+  @@map("user_role")
+}
+
+// Blog & CMS Models
+model Blog {
+  id              String   @id @default(cuid())
+  title           String?
+  slug            String   @unique
+  excerpt         String?
+  content         String?   @db.Text
+  featuredImage   String?
+  status          String   @default("draft") // draft, published, archived
+  authorId        String?
+  author          User?    @relation(fields: [authorId], references: [id])
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id])
+  tags            Tag[]
+  publishedAt     DateTime?
+  seoTitle        String?
+  seoDescription  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("blog")
 }
 
 model Page {
   id              String          @id @default(cuid())
   slug            String          @unique
-  titleTag        String
+  titleTag        String?
   metaDescription String?
   canonicalUrl    String?
   h1Title         String
-  bodyText        String?
+  bodyText        String?         @db.Text
   jsonLd          Json?
   featuredImage   String?
   featuredImageAlt String?
-  components      PageComponent[]
+  components      Json? // Array of Component objects
+  status          String          @default("published")
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
   @@map("page")
 }
 
-model PageComponent {
-  id        String   @id @default(cuid())
-  type      String // hero, text, gallery, cta, etc.
-  content   Json // Component specific data
-  order     Int      @default(0)
-  pageId    String
-  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Testimonial {
+  id          String   @id @default(cuid())
+  name        String
+  title       String?
+  content     String   @db.Text
+  avatar      String?
+  rating      Int      @default(5)
+  isApproved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@map("page_component")
-}
-
-model Product {
-  id              String   @id @default(cuid())
-  title           String?  @unique
-  summery         String
-  slug            String   @unique
-  body            String?
-  media           Json
-  titleTag        String?
-  metaDescription String?
-  canonicalUrl    String?
-  jsonLd          Json?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@map("urunler")
+  @@map("testimonial")
 }
 
 model DoctorTestimonial {
   id              String   @id @default(cuid())
-  name            String   @unique
-  slug            String   @unique
-  unvan           String
-  image           String
-  social_link     Json
-  testimonial     String?
-  titleTag        String?
-  metaDescription String?
-  canonicalUrl    String?
-  jsonLd          Json?
+  patientName     String?
+  treatment       String?
+  beforeImage     String?
+  afterImage      String?
+  content         String?   @db.Text
+  isApproved      Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -309,4 +346,18 @@ model Component {
   updatedAt   DateTime @updatedAt
 
   @@map("component")
+}
+
+model ComponentDefinition {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  icon        String?  @default("i-lucide-box")
+  description String?
+  category    String?  @default("other")
+  schema      Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("component_definition")
 }

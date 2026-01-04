@@ -25,9 +25,21 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
+    const data: any = { ...result.data }
+    
+    // Handle name split if present
+    if (data.name) {
+      const [resource, action] = data.name.split(':')
+      if (resource && action) {
+        data.resource = resource.toLowerCase()
+        data.action = action.toLowerCase()
+      }
+      delete data.name
+    }
+
     return await prisma.permission.update({
       where: { id },
-      data: result.data
+      data
     })
   } catch (error) {
     console.error('Update permission error:', error)

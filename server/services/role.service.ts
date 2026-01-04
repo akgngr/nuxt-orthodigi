@@ -42,7 +42,13 @@ export class RoleService {
     ])
 
     return {
-      items,
+      items: items.map(role => ({
+        ...role,
+        permissions: role.permissions.map(p => ({
+          ...p,
+          name: `${p.resource}:${p.action}`
+        }))
+      })),
       total,
       pages: Math.ceil(total / limit)
     }
@@ -103,7 +109,8 @@ export class RoleService {
     const where: any = {}
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
+        { action: { contains: search, mode: 'insensitive' } },
+        { resource: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } }
       ]
     }
@@ -112,7 +119,7 @@ export class RoleService {
       prisma.permission.findMany({
         where,
         orderBy: {
-          name: 'asc'
+          resource: 'asc'
         },
         skip,
         take: limit
@@ -121,7 +128,10 @@ export class RoleService {
     ])
 
     return {
-      items,
+      items: items.map(p => ({
+        ...p,
+        name: `${p.resource}:${p.action}`
+      })),
       total,
       pages: Math.ceil(total / limit)
     }

@@ -4,6 +4,8 @@ import { z } from 'zod'
 import type { FormSubmitEvent, EditorToolbarItem, EditorSuggestionMenuItem } from '@nuxt/ui'
 import { slugify } from '../../../../../utils/slugify'
 
+import PageBuilderEditor from '../../../../components/app/components/admin/PageBuilder/Editor.vue'
+
 // --- Editor Configuration ---
 const toolbarItems: EditorToolbarItem[][] = [
   [{
@@ -182,16 +184,36 @@ const query = computed(() => ({
   order: order.value
 }))
 
-const { data: blogsResponse, refresh: refreshBlogs, status: blogsStatus, error: blogsError } = await useFetch<any>('/api/admin/blog', { query })
-const { data: categoriesResponse } = await useFetch<any>('/api/admin/blog/categories')
-const { data: tagsResponse } = await useFetch<any>('/api/admin/blog/tags')
-const { data: usersResponse } = await useFetch<any>('/api/admin/users')
-const { data: formsList } = await useFetch<any>('/api/admin/forms')
+const { data: blogsResponse, refresh: refreshBlogs, status: blogsStatus, error: blogsError } = useFetch<any>('/api/admin/blog', { query })
+const { data: categoriesResponse, refresh: refreshCategories, error: categoriesError, status: categoriesStatus } = useFetch<any>('/api/admin/categories')
+const { data: tagsResponse, refresh: refreshTags, error: tagsError, status: tagsStatus } = useFetch<any>('/api/admin/tags')
+const { data: usersResponse, refresh: refreshUsers, error: usersError, status: usersStatus } = useFetch<any>('/api/admin/users')
+const { data: formsList } = useFetch<any>('/api/admin/forms')
 
 const authors = computed(() => usersResponse.value?.items || [])
-const categoryOptions = computed(() => (categoriesResponse.value as any[])?.map((c: any) => ({ label: c.name, value: c.id })) || [])
-const tagOptions = computed(() => (tagsResponse.value as any[])?.map((t: any) => ({ label: t.name, value: t.id })) || [])
-const authorOptions = computed(() => (authors.value as any[])?.map((u: any) => ({ label: u.name || u.email, value: u.id })) || [])
+const categoryOptions = computed(() => {
+  const items = categoriesResponse.value as any[]
+  if (!Array.isArray(items)) return []
+  return items.map((c: any) => ({ label: c.name, value: c.id }))
+})
+
+const tagOptions = computed(() => {
+  const items = tagsResponse.value as any[]
+  if (!Array.isArray(items)) return []
+  return items.map((t: any) => ({ label: t.name, value: t.id }))
+})
+
+const authorOptions = computed(() => {
+  const items = authors.value as any[]
+  if (!Array.isArray(items)) return []
+  return items.map((u: any) => ({ label: u.name || u.email, value: u.id }))
+})
+
+watch([categoriesError, tagsError, usersError], ([catErr, tagErr, userErr]) => {
+  if (catErr) useToast().add({ title: 'Kategoriler yüklenemedi', description: catErr.message, color: 'error' })
+  if (tagErr) useToast().add({ title: 'Etiketler yüklenemedi', description: tagErr.message, color: 'error' })
+  if (userErr) useToast().add({ title: 'Kullanıcılar yüklenemedi', description: userErr.message, color: 'error' })
+})
 
 const blogs = computed(() => blogsResponse.value?.items || [])
 const total = computed(() => blogsResponse.value?.total || 0)
@@ -238,9 +260,9 @@ const state = reactive({
   jsonLd: '',
   featuredImage: '',
   featuredImageAlt: '',
-  categoryId: '',
-  tags: [] as string[],
-  authorId: '',
+  selectedCategory: undefined as { label: string, value: string } | undefined,
+  selectedTags: [] as { label: string, value: string }[],
+  selectedAuthor: undefined as { label: string, value: string } | undefined,
   published: false
 })
 
@@ -261,9 +283,9 @@ const schema = z.object({
   bodyText: z.string().optional(),
   featuredImage: z.string().optional(),
   featuredImageAlt: z.string().optional(),
-  categoryId: z.string().optional().or(z.literal('')),
-  tags: z.array(z.string()).optional(),
-  authorId: z.string().optional().or(z.literal('')),
+  selectedCategory: z.object({ label: z.string(), value: z.string() }).optional().nullable(),
+  selectedTags: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+  selectedAuthor: z.object({ label: z.string(), value: z.string() }).optional().nullable(),
   published: z.boolean().default(false),
   jsonLd: z.string().refine((val) => {
     if (!val) return true
@@ -279,6 +301,9 @@ const schema = z.object({
 type Schema = z.infer<typeof schema>
 
 function openCreateDrawer() {
+  refreshCategories()
+  refreshTags()
+  refreshUsers()
   isEditMode.value = false
   Object.assign(state, {
     id: '',
@@ -291,16 +316,26 @@ function openCreateDrawer() {
     jsonLd: '',
     featuredImage: '',
     featuredImageAlt: '',
-    categoryId: '',
-    tags: [],
-    authorId: '',
+    selectedCategory: undefined,
+    selectedTags: [],
+    selectedAuthor: undefined,
     published: false
   })
   isDrawerOpen.value = true
 }
 
 function openEditDrawer(blog: any) {
+  refreshCategories()
+  refreshTags()
+  refreshUsers()
   isEditMode.value = true
+  
+  const category = categoryOptions.value.find(c => c.value === blog.categoryId)
+  const author = authorOptions.value.find(u => u.value === blog.authorId)
+  // Tags might be objects in blog.tags or ids. Assuming objects with id based on previous code
+  const blogTagIds = blog.tags?.map((t: any) => t.id) || []
+  const tags = tagOptions.value.filter(t => blogTagIds.includes(t.value))
+
   Object.assign(state, {
     id: blog.id,
     slug: blog.slug,
@@ -312,9 +347,9 @@ function openEditDrawer(blog: any) {
     jsonLd: blog.jsonLd ? JSON.stringify(blog.jsonLd, null, 2) : '',
     featuredImage: blog.featuredImage || '',
     featuredImageAlt: blog.featuredImageAlt || '',
-    categoryId: blog.categoryId || '',
-    tags: blog.tags?.map((t: any) => t.id) || [],
-    authorId: blog.authorId || '',
+    selectedCategory: category,
+    selectedTags: tags,
+    selectedAuthor: author,
     published: blog.published || false
   })
   isDrawerOpen.value = true
@@ -325,8 +360,15 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     isSubmitting.value = true
     const payload = {
       ...event.data,
+      categoryId: state.selectedCategory?.value || null,
+      authorId: state.selectedAuthor?.value || null,
+      tags: state.selectedTags.map(t => t.value),
       jsonLd: event.data.jsonLd ? JSON.parse(event.data.jsonLd) : null
     }
+    // Remove temporary selected fields from payload
+    delete (payload as any).selectedCategory
+    delete (payload as any).selectedTags
+    delete (payload as any).selectedAuthor
 
     if (isEditMode.value) {
       await $fetch(`/api/admin/blog/${state.id}`, {
@@ -412,6 +454,33 @@ const componentTypes = [
   { label: 'İletişim Formu', value: 'form', icon: 'i-lucide-clipboard-list' }
 ]
 
+function getComponentDef(type: string) {
+  return componentTypes.find(t => t.value === type) || { label: type, icon: 'i-lucide-box' }
+}
+
+function getComponentSummary(comp: BlogComponent) {
+  const content = comp.content
+  if (!content) return ''
+
+  switch (comp.type) {
+    case 'hero':
+      return content.title || 'Başlık yok'
+    case 'text':
+      // Strip HTML tags for summary
+      return content.body?.replace(/<[^>]*>/g, '').substring(0, 100) || 'Metin içeriği...'
+    case 'gallery':
+      return `${content.items?.length || 0} görsel`
+    case 'cta':
+      return content.title || 'CTA Başlığı yok'
+    case 'features':
+      return `${content.items?.length || 0} özellik`
+    case 'form':
+      return `Form: ${content.slug || 'Seçilmedi'}`
+    default:
+      return 'İçerik önizlemesi yok'
+  }
+}
+
 async function addComponent(type: string) {
   if (!selectedBlog.value) return
 
@@ -443,6 +512,43 @@ async function addComponent(type: string) {
     await refreshBlogs()
   } catch (error: any) {
     useToast().add({ title: 'Bileşen eklenemedi', description: error.message, color: 'error' })
+  }
+}
+
+async function moveComponent(index: number, direction: number | 'down') {
+  if (!selectedBlog.value || !selectedBlog.value.components) return
+
+  const components = [...selectedBlog.value.components]
+  const dir = direction === 'down' ? 1 : (direction as number)
+
+  if (index + dir < 0 || index + dir >= components.length) return
+
+  const temp = components[index]
+  components[index] = components[index + dir]
+  components[index + dir] = temp
+
+  components.forEach((c, i) => (c.order = i))
+  selectedBlog.value.components = components
+
+  try {
+    // Update order in database using dedicated reorder endpoint
+    await $fetch(`/api/admin/blog/${selectedBlog.value.id}/components/reorder`, {
+      method: 'PATCH',
+      body: {
+        componentIds: components.map(c => c.id)
+      }
+    })
+    useToast().add({ title: 'Sıralama güncellendi', color: 'success' })
+  } catch (error: any) {
+    useToast().add({ title: 'Sıralama güncellenemedi', description: error.message, color: 'error' })
+    await refreshBlogs()
+  }
+}
+
+async function onComponentSave(content: any) {
+  if (selectedComponent.value) {
+    Object.assign(componentEditorState, content)
+    await onComponentSubmit()
   }
 }
 
@@ -676,11 +782,13 @@ if (blogsError.value) {
                   <div class="grid grid-cols-2 gap-4">
                     <UFormField
                       label="Kategori"
-                      name="categoryId"
+                      name="selectedCategory"
                     >
-                      <USelect
-                        v-model="state.categoryId"
+                      <USelectMenu
+                        v-model="state.selectedCategory"
                         :items="categoryOptions"
+                        :loading="categoriesStatus === 'pending'"
+                        option-attribute="label"
                         placeholder="Kategori Seçin"
                         class="w-full"
                       />
@@ -688,11 +796,13 @@ if (blogsError.value) {
 
                     <UFormField
                       label="Yazar"
-                      name="authorId"
+                      name="selectedAuthor"
                     >
-                      <USelect
-                        v-model="state.authorId"
+                      <USelectMenu
+                        v-model="state.selectedAuthor"
                         :items="authorOptions"
+                        :loading="usersStatus === 'pending'"
+                        option-attribute="label"
                         placeholder="Yazar Seçin"
                         class="w-full"
                       />
@@ -701,12 +811,14 @@ if (blogsError.value) {
 
                   <UFormField
                     label="Etiketler"
-                    name="tags"
+                    name="selectedTags"
                   >
-                    <USelect
-                      v-model="state.tags"
+                    <USelectMenu
+                      v-model="state.selectedTags"
                       multiple
                       :items="tagOptions"
+                      :loading="tagsStatus === 'pending'"
+                      option-attribute="label"
                       placeholder="Etiket Seçin"
                       class="w-full"
                     />
@@ -990,56 +1102,82 @@ if (blogsError.value) {
               <div
                 v-for="(comp, index) in selectedBlog.components"
                 :key="comp.id"
-                class="group bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-primary-500 transition-colors"
               >
-                <div class="flex items-center justify-between mb-2">
-                  <div class="flex items-center gap-2">
-                    <UBadge
-                      color="primary"
-                      variant="subtle"
-                      size="sm"
-                      class="rounded-lg"
-                    >
-                      #{{ index + 1 }}
-                    </UBadge>
-                    <span class="font-bold text-sm uppercase tracking-tight">{{ comp.type }}</span>
+                <UCard :ui="{ body: 'p-3 sm:p-4' }">
+                  <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                      <UBadge
+                        color="neutral"
+                        variant="soft"
+                        size="sm"
+                        class="rounded-lg font-mono"
+                      >
+                        {{ index + 1 }}
+                      </UBadge>
+                      
+                      <div class="flex items-center gap-2">
+                        <UIcon 
+                          :name="getComponentDef(comp.type).icon" 
+                          class="w-5 h-5 text-gray-500" 
+                        />
+                        <div>
+                          <div class="font-semibold text-sm">
+                            {{ getComponentDef(comp.type).label }}
+                          </div>
+                          <div class="text-xs text-gray-500 line-clamp-1 max-w-[200px]">
+                            {{ getComponentSummary(comp) }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-1">
+                      <UTooltip text="Yukarı Taşı">
+                        <UButton
+                          icon="i-lucide-arrow-up"
+                          color="neutral"
+                          variant="ghost"
+                          size="xs"
+                          :disabled="index === 0"
+                          @click="moveComponent(index, -1)"
+                        />
+                      </UTooltip>
+                      
+                      <UTooltip text="Aşağı Taşı">
+                        <UButton
+                          icon="i-lucide-arrow-down"
+                          color="neutral"
+                          variant="ghost"
+                          size="xs"
+                          :disabled="index === selectedBlog.components.length - 1"
+                          @click="moveComponent(index, 'down')"
+                        />
+                      </UTooltip>
+
+                      <UDivider vertical class="h-4 mx-1" />
+
+                      <UTooltip text="Düzenle">
+                        <UButton
+                          icon="i-lucide-edit-2"
+                          color="primary"
+                          variant="ghost"
+                          size="xs"
+                          @click="openComponentEditor(comp)"
+                        />
+                      </UTooltip>
+                      
+                      <UTooltip text="Sil">
+                        <UButton
+                          icon="i-lucide-trash-2"
+                          color="error"
+                          variant="ghost"
+                          size="xs"
+                          @click="removeComponent(comp.id)"
+                        />
+                      </UTooltip>
+                    </div>
                   </div>
-                  <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <UButton
-                      icon="i-lucide-arrow-up"
-                      color="neutral"
-                      variant="ghost"
-                      size="xs"
-                      :disabled="index === 0"
-                      @click="moveComponent(index, 'up')"
-                    />
-                    <UButton
-                      icon="i-lucide-arrow-down"
-                      color="neutral"
-                      variant="ghost"
-                      size="xs"
-                      :disabled="index === selectedBlog.components.length - 1"
-                      @click="moveComponent(index, 'down')"
-                    />
-                    <UButton
-                      icon="i-lucide-edit"
-                      color="neutral"
-                      variant="ghost"
-                      size="xs"
-                      @click="openComponentEditor(comp)"
-                    />
-                    <UButton
-                      icon="i-lucide-trash"
-                      color="error"
-                      variant="ghost"
-                      size="xs"
-                      @click="removeComponent(comp.id)"
-                    />
-                  </div>
-                </div>
-                <div class="text-xs text-gray-500 truncate">
-                  {{ JSON.stringify(comp.content) }}
-                </div>
+                </UCard>
               </div>
             </div>
           </div>
@@ -1049,11 +1187,11 @@ if (blogsError.value) {
 
     <USlideover
       v-model:open="isComponentEditorOpen"
-      :title="selectedComponent ? `${selectedComponent.type.toUpperCase()} Düzenle` : 'Bileşen Düzenle'"
+      :title="selectedComponent ? `${getComponentDef(selectedComponent.type).label} Düzenle` : 'Bileşen Düzenle'"
       :ui="{ width: 'w-[500px]' }"
     >
       <template #content>
-        <AdminPageBuilderEditor
+        <PageBuilderEditor
           v-if="selectedComponent"
           :component="selectedComponent"
           :loading="isSubmitting"

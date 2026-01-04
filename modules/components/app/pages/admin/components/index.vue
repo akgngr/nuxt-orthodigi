@@ -122,62 +122,74 @@ async function deleteItem(id: string) {
 </script>
 
 <template>
-  <div class="p-4 space-y-4">
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Bileşenler</h1>
-      <UButton
-        label="Yeni Bileşen"
-        icon="i-lucide-plus"
-        color="primary"
-        @click="openCreate"
-      />
+  <UDashboardPanel grow>
+  <AdminNavbar />
+  <UDashboardNavbar title="Bileşen Yönetimi">
+      <template #right>
+        <UButton
+          label="Yeni Bileşen"
+          icon="i-lucide-plus"
+          color="primary"
+          @click="openCreate"
+        />
+      </template>
+    </UDashboardNavbar>
+
+    <UDashboardToolbar>
+      <template #left>
+        <UInput
+          v-model="search"
+          icon="i-lucide-search"
+          placeholder="Bileşen ara..."
+          class="w-64"
+          @update:model-value="page = 1"
+        />
+      </template>
+    </UDashboardToolbar>
+
+    <div class="flex-1 overflow-y-auto p-4">
+      <UCard
+        :ui="{ body: 'p-0' }"
+        class="flex-1"
+      >
+        <UTable
+          :data="data?.items || []"
+          :columns="columns"
+          :loading="status === 'pending'"
+        >
+          <template #type-cell="{ row }">
+            <div class="flex items-center gap-2">
+              <UIcon :name="getComponentIcon(row.original.type)" class="w-4 h-4" />
+              <span>{{ getComponentLabel(row.original.type) }}</span>
+            </div>
+          </template>
+          
+          <template #updatedAt-cell="{ row }">
+            {{ new Date(row.original.updatedAt).toLocaleDateString('tr-TR') }}
+          </template>
+
+          <template #actions-cell="{ row }">
+            <div class="flex items-center gap-2">
+              <UButton
+                icon="i-lucide-edit"
+                color="gray"
+                variant="ghost"
+                size="xs"
+                @click="editItem(row.original)"
+              />
+              <UButton
+                icon="i-lucide-trash-2"
+                color="red"
+                variant="ghost"
+                size="xs"
+                @click="deleteItem(row.original.id)"
+              />
+            </div>
+          </template>
+        </UTable>
+      </UCard>
     </div>
-
-    <div class="flex gap-4">
-      <UInput
-        v-model="search"
-        icon="i-lucide-search"
-        placeholder="Ara..."
-        class="max-w-xs"
-      />
-    </div>
-
-    <UTable
-      :data="data?.items || []"
-      :columns="columns"
-      :loading="status === 'pending'"
-    >
-      <template #type-cell="{ row }">
-        <div class="flex items-center gap-2">
-          <UIcon :name="getComponentIcon(row.original.type)" class="w-4 h-4" />
-          <span>{{ getComponentLabel(row.original.type) }}</span>
-        </div>
-      </template>
-      
-      <template #updatedAt-cell="{ row }">
-        {{ new Date(row.original.updatedAt).toLocaleDateString('tr-TR') }}
-      </template>
-
-      <template #actions-cell="{ row }">
-        <div class="flex items-center gap-2">
-          <UButton
-            icon="i-lucide-edit"
-            color="gray"
-            variant="ghost"
-            size="xs"
-            @click="editItem(row.original)"
-          />
-          <UButton
-            icon="i-lucide-trash-2"
-            color="red"
-            variant="ghost"
-            size="xs"
-            @click="deleteItem(row.original.id)"
-          />
-        </div>
-      </template>
-    </UTable>
-
+  </UDashboardPanel>
     <!-- Drawer -->
     <USlideover v-model:open="isDrawerOpen" :ui="{ width: 'max-w-2xl' }">
       <template #content>
@@ -211,13 +223,13 @@ async function deleteItem(id: string) {
           <!-- Step 2: Edit Details & Content -->
           <div v-else class="space-y-6">
             <div class="space-y-4">
-              <UFormGroup label="Başlık" required>
+              <UFormField label="Başlık" required>
                 <UInput v-model="state.title" placeholder="Örn: Ana Sayfa Hero" />
-              </UFormGroup>
+              </UFormField>
               
-              <UFormGroup label="Açıklama">
+              <UFormField label="Açıklama">
                 <UTextarea v-model="state.description" placeholder="Bileşen hakkında notlar..." />
-              </UFormGroup>
+              </UFormField>
             </div>
 
             <UDivider label="İçerik Düzenleyici" />
@@ -239,5 +251,4 @@ async function deleteItem(id: string) {
       </div>
       </template>
     </USlideover>
-  </div>
 </template>

@@ -10,7 +10,8 @@ const pageSchema = z.object({
   canonicalUrl: z.string().optional(),
   h1Title: z.string().min(1).optional(),
   bodyText: z.string().optional(),
-  jsonLd: z.any().optional()
+  jsonLd: z.any().optional(),
+  content: z.any().optional()
 })
 
 export default defineEventHandler(async (event) => {

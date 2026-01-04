@@ -119,6 +119,7 @@ export class BlogService {
   }
 
   static async create(data: any) {
+    console.log('[BlogService] Creating blog with data:', JSON.stringify(data, null, 2))
     const { id, createdAt, updatedAt, components, tags, ...rest } = data
 
     // Ensure jsonLd is handled correctly
@@ -126,11 +127,16 @@ export class BlogService {
       try {
         rest.jsonLd = JSON.parse(rest.jsonLd)
       } catch (e) {
+        console.error('[BlogService] JSON Parse Error for jsonLd:', e)
         rest.jsonLd = null
       }
     } else if (rest.jsonLd === '') {
       rest.jsonLd = null
     }
+
+    // Handle empty strings for relations
+    if (rest.categoryId === '') rest.categoryId = null
+    if (rest.authorId === '') rest.authorId = null
 
     const createData: any = { ...rest }
 
@@ -141,11 +147,24 @@ export class BlogService {
     }
 
     return await db.blog.create({
-      data: createData
+      data: createData,
+      include: {
+        category: true,
+        tags: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true
+          }
+        }
+      }
     })
   }
 
   static async update(id: string, data: any) {
+    console.log('[BlogService] Updating blog', id, 'with data:', JSON.stringify(data, null, 2))
     const { id: _, createdAt, updatedAt, components, tags, ...rest } = data
 
     // Ensure jsonLd is handled correctly
@@ -153,11 +172,16 @@ export class BlogService {
       try {
         rest.jsonLd = JSON.parse(rest.jsonLd)
       } catch (e) {
+        console.error('[BlogService] JSON Parse Error for jsonLd:', e)
         rest.jsonLd = null
       }
     } else if (rest.jsonLd === '') {
       rest.jsonLd = null
     }
+
+    // Handle empty strings for relations
+    if (rest.categoryId === '') rest.categoryId = null
+    if (rest.authorId === '') rest.authorId = null
 
     const updateData: any = { ...rest }
 
@@ -169,7 +193,19 @@ export class BlogService {
 
     return await db.blog.update({
       where: { id },
-      data: updateData
+      data: updateData,
+      include: {
+        category: true,
+        tags: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true
+          }
+        }
+      }
     })
   }
 

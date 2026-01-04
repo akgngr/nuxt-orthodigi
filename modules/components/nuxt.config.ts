@@ -4,5 +4,8 @@ export default defineNuxtConfig({
       path: 'app/components',
       pathPrefix: true
     }
-  ]
+  ],
+  imports: {
+    dirs: ['composables']
+  }
 })

@@ -3,6 +3,7 @@ import { ref, computed, reactive, watch } from 'vue'
 import { z } from 'zod'
 import type { FormSubmitEvent, EditorToolbarItem, EditorSuggestionMenuItem } from '@nuxt/ui'
 import { slugify } from '../../../../../../utils/slugify'
+import { usePageBuilder } from '../../../../../../modules/components/composables/usePageBuilder'
 
 // --- Editor Configuration ---
 const toolbarItems: EditorToolbarItem[][] = [
@@ -182,6 +183,7 @@ const isLoading = computed(() => pagesStatus.value === 'pending')
 
 const selectedPage = ref<Page | null>(null)
 const selectedComponent = ref<PageComponent | null>(null)
+const componentEditorState = reactive<Record<string, any>>({})
 
 const state = reactive({
   id: '',
@@ -310,11 +312,13 @@ function openComponentDrawer(page: Page) {
 
 function openComponentEditor(component: PageComponent) {
   selectedComponent.value = component
+  // Reset state first
+  Object.keys(componentEditorState).forEach(key => delete componentEditorState[key])
   Object.assign(componentEditorState, JSON.parse(JSON.stringify(component.content)))
   isComponentEditorOpen.value = true
 }
 
-async function onComponentSubmit() {
+async function onComponentSave(content: any) {
   if (!selectedComponent.value) return
 
   try {
@@ -322,7 +326,7 @@ async function onComponentSubmit() {
     const updatedComponent = await $fetch(`/api/admin/pages/components/${selectedComponent.value.id}`, {
       method: 'PATCH',
       body: {
-        content: componentEditorState
+        content
       }
     })
 
@@ -344,33 +348,47 @@ async function onComponentSubmit() {
   }
 }
 
-const componentTypes = [
-  { label: 'Hero', value: 'hero', icon: 'i-lucide-layout-template' },
-  { label: 'Metin Bloğu', value: 'text', icon: 'i-lucide-align-left' },
-  { label: 'Galeri', value: 'gallery', icon: 'i-lucide-image' },
-  { label: 'CTA (Eylem Çağrısı)', value: 'cta', icon: 'i-lucide-mouse-pointer-click' },
-  { label: 'Özellikler', value: 'features', icon: 'i-lucide-list-checks' },
-  { label: 'İletişim Formu', value: 'form', icon: 'i-lucide-clipboard-list' }
-]
+async function updateComponents(components: PageComponent[]) {
+  if (!selectedPage.value) return
+  
+  // Optimistic update
+  selectedPage.value.components = components
+
+  try {
+    await $fetch(`/api/admin/pages/${selectedPage.value.id}/components/reorder`, {
+      method: 'PATCH',
+      body: {
+        componentIds: components.map(c => c.id)
+      }
+    })
+  } catch (error: any) {
+    useToast().add({ title: 'Sıralama güncellenemedi', description: error.message, color: 'error' })
+    await refreshPages() // Revert on error
+  }
+}
+
+const { componentDefinitions, fetchDefinitions } = usePageBuilder()
+await fetchDefinitions()
+
+const componentTypes = computed(() => componentDefinitions.value.map(d => ({
+  label: d.label,
+  value: d.type,
+  icon: d.icon
+})))
 
 async function addComponent(type: string) {
   if (!selectedPage.value) return
 
-  try {
-    const defaultContent: Record<string, any> = {
-      hero: { title: 'Yeni Hero', subtitle: '', image: '', ctaLabel: '', ctaUrl: '' },
-      text: { body: '<p>Metin içeriği buraya gelecek...</p>' },
-      gallery: { items: [] },
-      cta: { title: 'Harekete Geçin', description: '', buttonLabel: 'Tıklayın', buttonUrl: '#' },
-      features: { items: [] },
-      form: { slug: '', title: '', description: '' }
-    }
+  const { getComponentDef } = usePageBuilder()
+  const def = getComponentDef(type)
+  const content = def?.defaultContent || {}
 
+  try {
     const newComponent = await $fetch(`/api/admin/pages/${selectedPage.value.id}/components`, {
       method: 'POST',
       body: {
         type,
-        content: defaultContent[type] || {}
+        content
       }
     })
 
@@ -436,6 +454,16 @@ async function moveComponent(index: number, direction: 'up' | 'down') {
     useToast().add({ title: 'Sıralama güncellenemedi', description: error.message, color: 'error' })
   }
 }
+
+// Watch listData to update selectedPage when data is refreshed
+watch(listData, (newData) => {
+  if (selectedPage.value && newData?.items) {
+    const updatedPage = (newData.items as unknown as Page[]).find(p => p.id === selectedPage.value?.id)
+    if (updatedPage) {
+      selectedPage.value = updatedPage
+    }
+  }
+})
 
 const items = computed<Page[]>(() => ((listData.value?.items ?? []) as unknown as Page[]))
 const total = computed(() => listData.value?.total ?? 0)

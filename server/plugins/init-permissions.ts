@@ -5,12 +5,21 @@ export default defineNitroPlugin(async (_nitroApp) => {
   try {
     // 1. Sync all permissions
     for (const permissionName of ALL_PERMISSIONS) {
+      const [resource, action] = permissionName.split(':')
+      if (!resource || !action) continue
+
       await prisma.permission.upsert({
-        where: { name: permissionName },
+        where: {
+          action_resource: {
+            action,
+            resource
+          }
+        },
         update: {},
         create: {
-          name: permissionName,
-          description: `Permission to ${permissionName.split(':')[1]} ${permissionName.split(':')[0]}`
+          action,
+          resource,
+          description: `Permission to ${action} ${resource}`
         }
       })
     }

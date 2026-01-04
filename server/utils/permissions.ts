@@ -112,7 +112,9 @@ export async function getUserPermissions(userId: string) {
   const permissions = new Set<string>()
   userRoles.forEach((ur) => {
     ur.role.permissions.forEach((p) => {
-      permissions.add(p.name)
+      // Construct permission string from resource and action
+      // e.g. "dashboard:read"
+      permissions.add(`${p.resource.toLowerCase()}:${p.action.toLowerCase()}`)
     })
   })
 

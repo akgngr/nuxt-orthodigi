@@ -23,8 +23,22 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
+    const { name, description } = result.data
+    const [resource, action] = name.split(':')
+
+    if (!resource || !action) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid permission format. Expected format: resource:action'
+      })
+    }
+
     return await prisma.permission.create({
-      data: result.data
+      data: {
+        resource: resource.toLowerCase(),
+        action: action.toLowerCase(),
+        description
+      }
     })
   } catch (error) {
     console.error('Create permission error:', error)

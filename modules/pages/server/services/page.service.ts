@@ -95,6 +95,7 @@ export class PageService {
     jsonLd?: any
     featuredImage?: string
     featuredImageAlt?: string
+    content?: any
   }) {
     return await db.page.create({
       data

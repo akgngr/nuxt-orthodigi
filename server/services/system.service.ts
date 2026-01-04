@@ -10,16 +10,25 @@ export class SystemService {
     console.log('🚀 Sistem seed işlemi başlatılıyor...')
 
     // 1. İzinleri Senkronize Et (Upsert)
-    const permissionPromises = ALL_PERMISSIONS.map(permName =>
-      prisma.permission.upsert({
-        where: { name: permName },
+    const permissionPromises = ALL_PERMISSIONS.map(permName => {
+      const [resource, action] = permName.split(':')
+      if (!resource || !action) return Promise.resolve()
+      
+      return prisma.permission.upsert({
+        where: {
+          action_resource: {
+            action,
+            resource
+          }
+        },
         update: {},
         create: {
-          name: permName,
+          action,
+          resource,
           description: `${permName} yetkisi`
         }
       })
-    )
+    })
     await Promise.all(permissionPromises)
     console.log(`✅ ${ALL_PERMISSIONS.length} adet izin senkronize edildi.`)
 

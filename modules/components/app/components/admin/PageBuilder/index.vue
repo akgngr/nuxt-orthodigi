@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import draggable from 'vuedraggable'
-import { usePageBuilder } from '~/modules/components/composables/usePageBuilder'
-import type { PageComponent } from '~/shared/types/page'
+import { usePageBuilder } from '../../../../composables/usePageBuilder'
+import type { PageComponent } from '#shared/types/page'
 
 const props = defineProps<{
   modelValue: PageComponent[]

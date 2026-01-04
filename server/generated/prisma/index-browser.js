@@ -188,44 +188,63 @@ exports.Prisma.PatientScalarFieldEnum = {
   name: 'name',
   email: 'email',
   phone: 'phone',
+  tcNo: 'tcNo',
+  birthDate: 'birthDate',
+  gender: 'gender',
+  address: 'address',
+  notes: 'notes',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.AppointmentScalarFieldEnum = {
   id: 'id',
-  date: 'date',
-  status: 'status',
   patientId: 'patientId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.BlogScalarFieldEnum = {
-  id: 'id',
-  slug: 'slug',
-  titleTag: 'titleTag',
-  metaDescription: 'metaDescription',
-  canonicalUrl: 'canonicalUrl',
-  h1Title: 'h1Title',
-  bodyText: 'bodyText',
-  jsonLd: 'jsonLd',
-  featuredImage: 'featuredImage',
-  featuredImageAlt: 'featuredImageAlt',
-  categoryId: 'categoryId',
-  authorId: 'authorId',
-  published: 'published',
-  publishedAt: 'publishedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.BlogComponentScalarFieldEnum = {
-  id: 'id',
+  title: 'title',
+  description: 'description',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  status: 'status',
   type: 'type',
-  content: 'content',
-  order: 'order',
-  blogId: 'blogId',
+  color: 'color',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TreatmentScalarFieldEnum = {
+  id: 'id',
+  patientId: 'patientId',
+  title: 'title',
+  description: 'description',
+  status: 'status',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  cost: 'cost',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PaymentScalarFieldEnum = {
+  id: 'id',
+  patientId: 'patientId',
+  amount: 'amount',
+  type: 'type',
+  status: 'status',
+  description: 'description',
+  date: 'date',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PatientFileScalarFieldEnum = {
+  id: 'id',
+  patientId: 'patientId',
+  name: 'name',
+  url: 'url',
+  type: 'type',
+  size: 'size',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -240,7 +259,8 @@ exports.Prisma.RoleScalarFieldEnum = {
 
 exports.Prisma.PermissionScalarFieldEnum = {
   id: 'id',
-  name: 'name',
+  action: 'action',
+  resource: 'resource',
   description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -250,6 +270,23 @@ exports.Prisma.UserRoleScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   roleId: 'roleId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BlogScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  slug: 'slug',
+  excerpt: 'excerpt',
+  content: 'content',
+  featuredImage: 'featuredImage',
+  status: 'status',
+  authorId: 'authorId',
+  categoryId: 'categoryId',
+  publishedAt: 'publishedAt',
+  seoTitle: 'seoTitle',
+  seoDescription: 'seoDescription',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -265,47 +302,32 @@ exports.Prisma.PageScalarFieldEnum = {
   jsonLd: 'jsonLd',
   featuredImage: 'featuredImage',
   featuredImageAlt: 'featuredImageAlt',
+  components: 'components',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.PageComponentScalarFieldEnum = {
+exports.Prisma.TestimonialScalarFieldEnum = {
   id: 'id',
-  type: 'type',
-  content: 'content',
-  order: 'order',
-  pageId: 'pageId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.ProductScalarFieldEnum = {
-  id: 'id',
+  name: 'name',
   title: 'title',
-  summery: 'summery',
-  slug: 'slug',
-  body: 'body',
-  media: 'media',
-  titleTag: 'titleTag',
-  metaDescription: 'metaDescription',
-  canonicalUrl: 'canonicalUrl',
-  jsonLd: 'jsonLd',
+  content: 'content',
+  avatar: 'avatar',
+  rating: 'rating',
+  isApproved: 'isApproved',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.DoctorTestimonialScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  slug: 'slug',
-  unvan: 'unvan',
-  image: 'image',
-  social_link: 'social_link',
-  testimonial: 'testimonial',
-  titleTag: 'titleTag',
-  metaDescription: 'metaDescription',
-  canonicalUrl: 'canonicalUrl',
-  jsonLd: 'jsonLd',
+  patientName: 'patientName',
+  treatment: 'treatment',
+  beforeImage: 'beforeImage',
+  afterImage: 'afterImage',
+  content: 'content',
+  isApproved: 'isApproved',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -359,6 +381,18 @@ exports.Prisma.ComponentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ComponentDefinitionScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  icon: 'icon',
+  description: 'description',
+  category: 'category',
+  schema: 'schema',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -399,19 +433,21 @@ exports.Prisma.ModelName = {
   Verification: 'Verification',
   Patient: 'Patient',
   Appointment: 'Appointment',
-  Blog: 'Blog',
-  BlogComponent: 'BlogComponent',
+  Treatment: 'Treatment',
+  Payment: 'Payment',
+  PatientFile: 'PatientFile',
   Role: 'Role',
   Permission: 'Permission',
   UserRole: 'UserRole',
+  Blog: 'Blog',
   Page: 'Page',
-  PageComponent: 'PageComponent',
-  Product: 'Product',
+  Testimonial: 'Testimonial',
   DoctorTestimonial: 'DoctorTestimonial',
   DoctorProfile: 'DoctorProfile',
   Form: 'Form',
   FormSubmission: 'FormSubmission',
-  Component: 'Component'
+  Component: 'Component',
+  ComponentDefinition: 'ComponentDefinition'
 };
 
 /**

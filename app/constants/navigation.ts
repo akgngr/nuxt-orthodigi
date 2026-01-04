@@ -52,7 +52,8 @@ export const navigationItems: NavigationItem[][] = [
         
       ]
     },
-    {
+    /**
+     {
       label: 'Randevular',
       icon: 'i-lucide-calendar',
       to: '/admin/appointments',
@@ -65,8 +66,10 @@ export const navigationItems: NavigationItem[][] = [
       badge: '12',
       permission: 'messages:read'
     }
+     */
   ],
-  [
+  /**
+   [
     {
       label: 'Sistem',
       type: 'label'
@@ -84,4 +87,5 @@ export const navigationItems: NavigationItem[][] = [
       permission: 'reports:read'
     }
   ]
+   */
 ]

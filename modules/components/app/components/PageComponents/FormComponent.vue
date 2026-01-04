@@ -1,91 +1,29 @@
+<script setup lang="ts">
+import DynamicForm from '~/modules/forms/app/components/DynamicForm.vue'
+
+const props = defineProps<{
+  formSlug?: string
+  title?: string
+  description?: string
+}>()
+</script>
+
 <template>
-  <div class="w-full">
-    <div v-if="loading" class="flex justify-center items-center py-8">
-      <!-- Loading overlay -->
-      <div v-if="loading" class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 flex items-center justify-center z-10">
-        <UIcon 
-          name="i-lucide-loader-circle" 
-          class="animate-spin w-8 h-8 text-primary-500" 
-        />
+  <section class="py-16 bg-white dark:bg-gray-900">
+    <div class="container px-4 mx-auto">
+      <div class="max-w-2xl mx-auto">
+        <div v-if="title || description" class="text-center mb-8">
+          <h2 v-if="title" class="text-3xl font-bold mb-4 text-gray-900 dark:text-white">{{ title }}</h2>
+          <p v-if="description" class="text-gray-600 dark:text-gray-300">{{ description }}</p>
+        </div>
+        
+        <div v-if="formSlug" class="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+          <DynamicForm :slug="formSlug" />
+        </div>
+        <div v-else class="text-center text-gray-500 py-8 bg-gray-50 dark:bg-gray-800 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+          Form seçilmedi.
+        </div>
       </div>
     </div>
-    
-    <div v-else-if="error" class="text-center py-8">
-      <p class="text-red-500">{{ error }}</p>
-    </div>
-    
-    <div v-else-if="formDefinition">
-      <DynamicForm
-        :form-definition="formDefinition"
-        :layout="componentData.layout"
-        :spacing="componentData.spacing"
-        :theme="componentData.theme"
-      />
-    </div>
-    
-    <div v-else class="text-center py-8">
-      <p class="text-gray-500">Form not found</p>
-    </div>
-  </div>
+  </section>
 </template>
-
-<script setup lang="ts">
-import type { PageComponent } from '~~/shared/types/page'
-import type { FormDefinition } from '~~/shared/types/form'
-
-interface Props {
-  component: PageComponent
-}
-
-const props = defineProps<Props>()
-
-const formDefinition = ref<FormDefinition | null>(null)
-const loading = ref(true)
-const error = ref('')
-
-// Component data with defaults
-const componentData = computed(() => ({
-  formSlug: props.component.content.formSlug,
-  layout: props.component.content.layout || 'vertical',
-  spacing: props.component.content.spacing || 'normal',
-  theme: props.component.content.theme || 'default'
-}))
-
-// Load form definition
-const loadForm = async () => {
-  if (!componentData.value.formSlug) {
-    error.value = 'No form selected'
-    loading.value = false
-    return
-  }
-
-  try {
-    loading.value = true
-    error.value = ''
-    
-    // Use public API endpoint directly
-    const response = await $fetch<{ success: boolean, data: FormDefinition }>(`/api/forms/${componentData.value.formSlug}`)
-    
-    if (response.data) {
-      formDefinition.value = response.data
-    } else {
-      error.value = 'Form not found'
-    }
-  } catch (err: any) {
-    error.value = err.message || 'Failed to load form'
-    console.error('Failed to load form:', err)
-  } finally {
-    loading.value = false
-  }
-}
-
-// Load form on mount
-onMounted(() => {
-  loadForm()
-})
-
-// Watch for form slug changes
-watch(() => componentData.value.formSlug, () => {
-  loadForm()
-})
-</script>

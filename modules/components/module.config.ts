@@ -9,8 +9,19 @@ export default defineModule({
   },
   navigation: {
     label: 'Bileşenler',
-    to: '/admin/components',
     icon: 'i-lucide-blocks',
-    permission: 'components:read'
+    permission: 'components:read',
+    children: [
+      {
+        label: 'Kayıtlı Bileşenler',
+        to: '/admin/components',
+        icon: 'i-lucide-box'
+      },
+      {
+        label: 'Bileşen Oluşturucu',
+        to: '/admin/components/builder',
+        icon: 'i-lucide-hammer'
+      }
+    ]
   }
 })
