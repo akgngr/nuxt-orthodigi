@@ -101,6 +101,16 @@ export class BlogService {
     return await db.blog.findUnique({
       where: { slug },
       include: {
+        category: true,
+        tags: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true
+          }
+        },
         components: {
           orderBy: { order: 'asc' }
         }

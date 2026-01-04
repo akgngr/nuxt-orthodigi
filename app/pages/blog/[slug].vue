@@ -9,7 +9,9 @@ if (error.value || !post.value) {
 useHead({
   title: post.value.titleTag,
   meta: [
-    { name: 'description', content: post.value.metaDescription },
+    { name: 'description', content: post.value.metaDescription }
+  ],
+  link: [
     { rel: 'canonical', href: post.value.canonicalUrl }
   ]
 })

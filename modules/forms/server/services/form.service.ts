@@ -13,9 +13,9 @@ export class FormService {
       id: form.id,
       slug: form.slug,
       title: form.title,
-      description: form.description,
-      fields: form.fields as FormField[],
-      settings: form.settings as FormSettings,
+      description: form.description || undefined,
+      fields: form.fields as unknown as FormField[],
+      settings: form.settings as unknown as FormSettings,
       createdAt: form.createdAt,
       updatedAt: form.updatedAt
     }))
@@ -32,9 +32,9 @@ export class FormService {
       id: form.id,
       slug: form.slug,
       title: form.title,
-      description: form.description,
-      fields: form.fields as FormField[],
-      settings: form.settings as FormSettings,
+      description: form.description || undefined,
+      fields: form.fields as unknown as FormField[],
+      settings: form.settings as unknown as FormSettings,
       createdAt: form.createdAt,
       updatedAt: form.updatedAt
     }
@@ -51,9 +51,9 @@ export class FormService {
       id: form.id,
       slug: form.slug,
       title: form.title,
-      description: form.description,
-      fields: form.fields as FormField[],
-      settings: form.settings as FormSettings,
+      description: form.description || undefined,
+      fields: form.fields as unknown as FormField[],
+      settings: form.settings as unknown as FormSettings,
       createdAt: form.createdAt,
       updatedAt: form.updatedAt
     }
@@ -71,8 +71,8 @@ export class FormService {
         slug: data.slug,
         title: data.title,
         description: data.description,
-        fields: data.fields,
-        settings: data.settings
+        fields: data.fields as any,
+        settings: data.settings as any
       }
     })
 
@@ -80,9 +80,9 @@ export class FormService {
       id: form.id,
       slug: form.slug,
       title: form.title,
-      description: form.description,
-      fields: form.fields as FormField[],
-      settings: form.settings as FormSettings,
+      description: form.description || undefined,
+      fields: form.fields as unknown as FormField[],
+      settings: form.settings as unknown as FormSettings,
       createdAt: form.createdAt,
       updatedAt: form.updatedAt
     }
@@ -97,16 +97,20 @@ export class FormService {
   }): Promise<FormDefinition | null> {
     const form = await this.prisma.form.update({
       where: { id },
-      data
+      data: {
+        ...data,
+        fields: data.fields as any,
+        settings: data.settings as any
+      }
     })
 
     return {
       id: form.id,
       slug: form.slug,
       title: form.title,
-      description: form.description,
-      fields: form.fields as FormField[],
-      settings: form.settings as FormSettings,
+      description: form.description || undefined,
+      fields: form.fields as unknown as FormField[],
+      settings: form.settings as unknown as FormSettings,
       createdAt: form.createdAt,
       updatedAt: form.updatedAt
     }
