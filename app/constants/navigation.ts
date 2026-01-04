@@ -49,11 +49,7 @@ export const navigationItems: NavigationItem[][] = [
       defaultOpen: true,
       children: [
         ...allNavigation,
-        {
-          label: 'Formlar',
-          to: '/admin/forms',
-          icon: 'i-lucide-form-input'
-        }
+        
       ]
     },
     {

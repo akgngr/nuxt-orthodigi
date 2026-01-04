@@ -297,3 +297,16 @@ model FormSubmission {
 
   @@map("form_submission")
 }
+
+model Component {
+  id          String   @id @default(cuid())
+  title       String
+  type        String
+  content     Json
+  category    String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("component")
+}

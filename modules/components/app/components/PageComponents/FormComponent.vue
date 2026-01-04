@@ -63,11 +63,11 @@ const loadForm = async () => {
     loading.value = true
     error.value = ''
     
-    const { getForm } = useFormBuilder()
-    const form = await getForm(componentData.value.formSlug)
+    // Use public API endpoint directly
+    const response = await $fetch<{ success: boolean, data: FormDefinition }>(`/api/forms/${componentData.value.formSlug}`)
     
-    if (form) {
-      formDefinition.value = form
+    if (response.data) {
+      formDefinition.value = response.data
     } else {
       error.value = 'Form not found'
     }

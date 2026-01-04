@@ -6,7 +6,8 @@ export default defineNuxtConfig({
     './modules/products',
     './modules/doctorprofile',
     './modules/doctortestimonial',
-    './modules/forms'
+    './modules/forms',
+    './modules/components'
   ],
   modules: [
     '@nuxt/eslint',

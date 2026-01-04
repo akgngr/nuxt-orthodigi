@@ -43,6 +43,7 @@
 <script setup lang="ts">
 import type { PageComponent } from '~~/shared/types/page'
 import type { FormDefinition } from '~~/shared/types/form'
+import { useFormBuilder } from '~/modules/forms/composables/useFormBuilder'
 
 interface Props {
   component: PageComponent

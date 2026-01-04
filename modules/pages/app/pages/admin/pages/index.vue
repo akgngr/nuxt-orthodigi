@@ -168,6 +168,11 @@ const { data: listData, refresh: refreshPages, status: pagesStatus, error: pages
   }))
 })
 
+const { data: usersResponse } = await useFetch<any>('/api/admin/users')
+const { data: formsList } = await useFetch<any>('/api/admin/forms')
+
+const authors = computed(() => usersResponse.value?.items || [])
+
 const isDrawerOpen = ref(false)
 const isComponentDrawerOpen = ref(false)
 const isComponentEditorOpen = ref(false)
@@ -177,8 +182,6 @@ const isLoading = computed(() => pagesStatus.value === 'pending')
 
 const selectedPage = ref<Page | null>(null)
 const selectedComponent = ref<PageComponent | null>(null)
-
-const componentEditorState = reactive<any>({})
 
 const state = reactive({
   id: '',
@@ -346,7 +349,8 @@ const componentTypes = [
   { label: 'Metin Bloğu', value: 'text', icon: 'i-lucide-align-left' },
   { label: 'Galeri', value: 'gallery', icon: 'i-lucide-image' },
   { label: 'CTA (Eylem Çağrısı)', value: 'cta', icon: 'i-lucide-mouse-pointer-click' },
-  { label: 'Özellikler', value: 'features', icon: 'i-lucide-list-checks' }
+  { label: 'Özellikler', value: 'features', icon: 'i-lucide-list-checks' },
+  { label: 'İletişim Formu', value: 'form', icon: 'i-lucide-clipboard-list' }
 ]
 
 async function addComponent(type: string) {
@@ -358,7 +362,8 @@ async function addComponent(type: string) {
       text: { body: '<p>Metin içeriği buraya gelecek...</p>' },
       gallery: { items: [] },
       cta: { title: 'Harekete Geçin', description: '', buttonLabel: 'Tıklayın', buttonUrl: '#' },
-      features: { items: [] }
+      features: { items: [] },
+      form: { slug: '', title: '', description: '' }
     }
 
     const newComponent = await $fetch(`/api/admin/pages/${selectedPage.value.id}/components`, {
@@ -860,102 +865,31 @@ if (pagesError.value) {
     <USlideover
       v-model:open="isComponentDrawerOpen"
       title="Sayfa Bileşenlerini Yönet"
+      :ui="{ width: 'w-[400px]' }"
     >
       <template #content>
-        <div class="p-6 flex flex-col h-full overflow-hidden">
+        <div class="p-6 h-full overflow-hidden bg-gray-50/50 dark:bg-gray-950/50">
           <div
             v-if="selectedPage"
-            class="flex-1 flex flex-col gap-6 overflow-hidden"
+            class="h-full flex flex-col"
           >
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="font-bold text-lg">
-                  {{ selectedPage.h1Title }}
-                </h3>
-                <p class="text-sm text-gray-500 italic">
-                  Bileşenleri ekleyin, düzenleyin ve sıralayın.
-                </p>
-              </div>
-              <UDropdownMenu
-                :items="[componentTypes.map(t => ({ label: t.label, icon: t.icon, click: () => addComponent(t.value) }))]"
-                :ui="{ width: 'w-56' }"
-              >
-                <UButton
-                  label="Bileşen Ekle"
-                  icon="i-lucide-plus"
-                  color="primary"
-                />
-              </UDropdownMenu>
+            <div class="mb-6">
+              <h3 class="font-bold text-lg text-gray-900 dark:text-white">
+                {{ selectedPage.h1Title }}
+              </h3>
+              <p class="text-sm text-gray-500">
+                Sürükleyip bırakarak sıralayabilirsiniz.
+              </p>
             </div>
 
-            <div class="flex-1 overflow-y-auto space-y-4 pr-2">
-              <div
-                v-if="!selectedPage.components || selectedPage.components.length === 0"
-                class="text-center py-12 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-2xl"
-              >
-                <UIcon
-                  name="i-lucide-layers"
-                  class="w-12 h-12 text-gray-200 mb-4 mx-auto"
-                />
-                <p class="text-gray-400">
-                  Henüz bileşen eklenmemiş.
-                </p>
-              </div>
-
-              <div
-                v-for="(comp, index) in selectedPage.components"
-                :key="comp.id"
-                class="group bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-primary-500 transition-colors"
-              >
-                <div class="flex items-center justify-between mb-2">
-                  <div class="flex items-center gap-2">
-                    <UBadge
-                      color="primary"
-                      variant="subtle"
-                      size="sm"
-                      class="rounded-lg"
-                    >
-                      #{{ index + 1 }}
-                    </UBadge>
-                    <span class="font-bold text-sm uppercase tracking-tight">{{ comp.type }}</span>
-                  </div>
-                  <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <UButton
-                      icon="i-lucide-arrow-up"
-                      color="neutral"
-                      variant="ghost"
-                      size="xs"
-                      :disabled="index === 0"
-                      @click="moveComponent(index, 'up')"
-                    />
-                    <UButton
-                      icon="i-lucide-arrow-down"
-                      color="neutral"
-                      variant="ghost"
-                      size="xs"
-                      :disabled="index === selectedPage.components.length - 1"
-                      @click="moveComponent(index, 'down')"
-                    />
-                    <UButton
-                      icon="i-lucide-edit"
-                      color="neutral"
-                      variant="ghost"
-                      size="xs"
-                      @click="openComponentEditor(comp)"
-                    />
-                    <UButton
-                      icon="i-lucide-trash"
-                      color="error"
-                      variant="ghost"
-                      size="xs"
-                      @click="removeComponent(comp.id)"
-                    />
-                  </div>
-                </div>
-                <div class="text-xs text-gray-500 truncate">
-                  {{ JSON.stringify(comp.content) }}
-                </div>
-              </div>
+            <div class="flex-1 overflow-y-auto min-h-0">
+              <AdminPageBuilder
+                :model-value="selectedPage.components || []"
+                @update:model-value="updateComponents"
+                @add="addComponent"
+                @edit="openComponentEditor"
+                @remove="removeComponent"
+              />
             </div>
           </div>
         </div>
@@ -965,106 +899,16 @@ if (pagesError.value) {
     <USlideover
       v-model:open="isComponentEditorOpen"
       :title="selectedComponent ? `${selectedComponent.type.toUpperCase()} Düzenle` : 'Bileşen Düzenle'"
+      :ui="{ width: 'w-[500px]' }"
     >
       <template #content>
-        <div class="p-6 overflow-y-auto max-h-[calc(100vh-120px)]">
-          <div
-            v-if="selectedComponent"
-            class="space-y-6"
-          >
-            <!-- Hero Editor -->
-            <div
-              v-if="selectedComponent.type === 'hero'"
-              class="space-y-4"
-            >
-              <UFormField label="Başlık">
-                <UInput v-model="componentEditorState.title" />
-              </UFormField>
-              <UFormField label="Alt Başlık">
-                <UTextarea v-model="componentEditorState.subtitle" />
-              </UFormField>
-              <UFormField label="Görsel URL">
-                <UInput v-model="componentEditorState.image" />
-              </UFormField>
-              <div class="grid grid-cols-2 gap-4">
-                <UFormField label="Buton Yazısı">
-                  <UInput v-model="componentEditorState.ctaLabel" />
-                </UFormField>
-                <UFormField label="Buton URL">
-                  <UInput v-model="componentEditorState.ctaUrl" />
-                </UFormField>
-              </div>
-            </div>
-
-            <!-- Text Editor -->
-            <div
-              v-else-if="selectedComponent.type === 'text'"
-              class="space-y-4"
-            >
-              <UFormField label="İçerik (HTML)">
-                <UTextarea
-                  v-model="componentEditorState.body"
-                  :rows="15"
-                />
-              </UFormField>
-            </div>
-
-            <!-- CTA Editor -->
-            <div
-              v-else-if="selectedComponent.type === 'cta'"
-              class="space-y-4"
-            >
-              <UFormField label="Başlık">
-                <UInput v-model="componentEditorState.title" />
-              </UFormField>
-              <UFormField label="Açıklama">
-                <UTextarea v-model="componentEditorState.description" />
-              </UFormField>
-              <div class="grid grid-cols-2 gap-4">
-                <UFormField label="Buton Yazısı">
-                  <UInput v-model="componentEditorState.buttonLabel" />
-                </UFormField>
-                <UFormField label="Buton URL">
-                  <UInput v-model="componentEditorState.buttonUrl" />
-                </UFormField>
-              </div>
-            </div>
-
-            <!-- Fallback for other types -->
-            <div
-              v-else
-              class="space-y-4"
-            >
-              <p class="text-sm text-gray-500 mb-2">
-                Bu bileşen türü için özel düzenleyici henüz eklenmedi. Ham JSON verisini düzenleyebilirsiniz:
-              </p>
-              <UTextarea
-                :model-value="JSON.stringify(componentEditorState, null, 2)"
-                :rows="15"
-                font-mono
-                @update:model-value="val => {
-                  try { Object.assign(componentEditorState, JSON.parse(val)) }
-                  catch (e) {}
-                }"
-              />
-            </div>
-
-            <div class="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-800">
-              <UButton
-                label="İptal"
-                color="neutral"
-                variant="ghost"
-                @click="isComponentEditorOpen = false"
-              />
-              <UButton
-                label="Kaydet"
-                color="primary"
-                :loading="isSubmitting"
-                @click="onComponentSubmit"
-              />
-            </div>
-          </div>
-        </div>
+        <AdminPageBuilderEditor
+          v-if="selectedComponent"
+          :component="selectedComponent"
+          :loading="isSubmitting"
+          @save="onComponentSave"
+          @cancel="isComponentEditorOpen = false"
+        />
       </template>
     </USlideover>
   </ClientOnly>

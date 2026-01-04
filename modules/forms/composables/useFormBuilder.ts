@@ -1,3 +1,4 @@
+import { ref, readonly } from 'vue'
 import type { FormDefinition, FormComponentData } from '~~/shared/types/form'
 
 export const useFormBuilder = () => {

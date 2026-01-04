@@ -4,13 +4,15 @@ import blogModule from '../modules/blog/module.config'
 import productsModule from '../modules/products/module.config'
 import doctorProfileModule from '../modules/doctorprofile/module.config'
 import doctorTestimonialModule from '../modules/doctortestimonial/module.config'
+import componentsModule from '../modules/components/module.config'
 
 export const modules: ModuleConfig[] = [
   pagesModule,
   blogModule,
   productsModule,
   doctorProfileModule,
-  doctorTestimonialModule
+  doctorTestimonialModule,
+  componentsModule
 ]
 
 export const allPermissions = modules.reduce((acc, mod) => {

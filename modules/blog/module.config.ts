@@ -12,5 +12,5 @@ export default defineModule({
     to: '/admin/blog',
     icon: 'i-lucide-pen-tool',
     permission: 'blog:read'
-  }
+  } 
 })

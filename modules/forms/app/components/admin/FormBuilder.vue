@@ -144,15 +144,21 @@ const updateFieldOrder = () => {
 }
 
 const handleRemoveField = (id: string) => {
-  if (confirm('Bu alanı silmek istediğinizden emin misiniz?')) {
-    const index = formData.value.fields.findIndex(f => f.id === id)
-    if (index > -1) {
-      formData.value.fields.splice(index, 1)
-      if (expandedFieldId.value === id) {
-        expandedFieldId.value = null
-      }
-      updateFieldOrder()
+  const index = formData.value.fields.findIndex(f => f.id === id)
+  if (index > -1) {
+    formData.value.fields.splice(index, 1)
+    if (expandedFieldId.value === id) {
+      expandedFieldId.value = null
     }
+    updateFieldOrder()
+    
+    const toast = useToast()
+    toast.add({
+      title: 'Alan Silindi',
+      description: 'Form alanı başarıyla silindi.',
+      color: 'green',
+      icon: 'i-lucide-check-circle'
+    })
   }
 }
 

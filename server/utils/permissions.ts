@@ -81,6 +81,11 @@ export const PERMISSIONS = {
   }),
   REPORTS: definePermissions('REPORTS', {
     READ: 'reports:read'
+  }),
+  COMPONENTS: definePermissions('COMPONENTS', {
+    READ: 'components:read',
+    WRITE: 'components:write',
+    DELETE: 'components:delete'
   })
 } as const
 

@@ -348,6 +348,17 @@ exports.Prisma.FormSubmissionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ComponentScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  type: 'type',
+  content: 'content',
+  category: 'category',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -399,7 +410,8 @@ exports.Prisma.ModelName = {
   DoctorTestimonial: 'DoctorTestimonial',
   DoctorProfile: 'DoctorProfile',
   Form: 'Form',
-  FormSubmission: 'FormSubmission'
+  FormSubmission: 'FormSubmission',
+  Component: 'Component'
 };
 
 /**

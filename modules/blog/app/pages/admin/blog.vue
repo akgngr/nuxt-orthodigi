@@ -186,6 +186,7 @@ const { data: blogsResponse, refresh: refreshBlogs, status: blogsStatus, error: 
 const { data: categoriesResponse } = await useFetch<any>('/api/admin/blog/categories')
 const { data: tagsResponse } = await useFetch<any>('/api/admin/blog/tags')
 const { data: usersResponse } = await useFetch<any>('/api/admin/users')
+const { data: formsList } = await useFetch<any>('/api/admin/forms')
 
 const authors = computed(() => usersResponse.value?.items || [])
 const categoryOptions = computed(() => (categoriesResponse.value as any[])?.map((c: any) => ({ label: c.name, value: c.id })) || [])
@@ -407,7 +408,8 @@ const componentTypes = [
   { label: 'Metin Bloğu', value: 'text', icon: 'i-lucide-align-left' },
   { label: 'Galeri', value: 'gallery', icon: 'i-lucide-image' },
   { label: 'CTA (Eylem Çağrısı)', value: 'cta', icon: 'i-lucide-mouse-pointer-click' },
-  { label: 'Özellikler', value: 'features', icon: 'i-lucide-list-checks' }
+  { label: 'Özellikler', value: 'features', icon: 'i-lucide-list-checks' },
+  { label: 'İletişim Formu', value: 'form', icon: 'i-lucide-clipboard-list' }
 ]
 
 async function addComponent(type: string) {
@@ -419,7 +421,8 @@ async function addComponent(type: string) {
       text: { body: '<p>Metin içeriği buraya gelecek...</p>' },
       gallery: { items: [] },
       cta: { title: 'Harekete Geçin', description: '', buttonLabel: 'Tıklayın', buttonUrl: '#' },
-      features: { items: [] }
+      features: { items: [] },
+      form: { slug: '', title: '', description: '' }
     }
 
     const newComponent = await $fetch(`/api/admin/blog/${selectedBlog.value.id}/components`, {
@@ -457,37 +460,6 @@ async function removeComponent(componentId: string) {
     await refreshBlogs()
   } catch (error: any) {
     useToast().add({ title: 'Bileşen silinemedi', description: error.message, color: 'error' })
-  }
-}
-
-async function moveComponent(index: number, direction: 'up' | 'down') {
-  if (!selectedBlog.value) return
-
-  const components = [...selectedBlog.value.components]
-  const newIndex = direction === 'up' ? index - 1 : index + 1
-
-  if (newIndex < 0 || newIndex >= components.length) return
-
-  const temp = components[index]
-  const other = components[newIndex]
-
-  if (temp && other) {
-    components[index] = other
-    components[newIndex] = temp
-  }
-
-  try {
-    await $fetch(`/api/admin/blog/${selectedBlog.value.id}/components/reorder`, {
-      method: 'PATCH',
-      body: {
-        componentIds: components.map(c => c.id)
-      }
-    })
-
-    selectedBlog.value.components = components
-    await refreshBlogs()
-  } catch (error: any) {
-    useToast().add({ title: 'Sıralama güncellenemedi', description: error.message, color: 'error' })
   }
 }
 
@@ -1078,84 +1050,16 @@ if (blogsError.value) {
     <USlideover
       v-model:open="isComponentEditorOpen"
       :title="selectedComponent ? `${selectedComponent.type.toUpperCase()} Düzenle` : 'Bileşen Düzenle'"
+      :ui="{ width: 'w-[500px]' }"
     >
       <template #content>
-        <div class="p-6 overflow-y-auto max-h-[calc(100vh-120px)]">
-          <div
-            v-if="selectedComponent"
-            class="space-y-6"
-          >
-            <div
-              v-if="selectedComponent.type === 'hero'"
-              class="space-y-4"
-            >
-              <UFormField label="Başlık">
-                <UInput v-model="componentEditorState.title" />
-              </UFormField>
-              <UFormField label="Alt Başlık">
-                <UTextarea v-model="componentEditorState.subtitle" />
-              </UFormField>
-              <UFormField label="Görsel URL">
-                <UInput v-model="componentEditorState.image" />
-              </UFormField>
-              <div class="grid grid-cols-2 gap-4">
-                <UFormField label="Buton Yazısı">
-                  <UInput v-model="componentEditorState.ctaLabel" />
-                </UFormField>
-                <UFormField label="Buton URL">
-                  <UInput v-model="componentEditorState.ctaUrl" />
-                </UFormField>
-              </div>
-            </div>
-
-            <div
-              v-else-if="selectedComponent.type === 'text'"
-              class="space-y-4"
-            >
-              <UFormField label="İçerik (HTML)">
-                <UTextarea
-                  v-model="componentEditorState.body"
-                  :rows="15"
-                />
-              </UFormField>
-            </div>
-
-            <div
-              v-else-if="selectedComponent.type === 'cta'"
-              class="space-y-4"
-            >
-              <UFormField label="Başlık">
-                <UInput v-model="componentEditorState.title" />
-              </UFormField>
-              <UFormField label="Açıklama">
-                <UTextarea v-model="componentEditorState.description" />
-              </UFormField>
-              <div class="grid grid-cols-2 gap-4">
-                <UFormField label="Buton Yazısı">
-                  <UInput v-model="componentEditorState.buttonLabel" />
-                </UFormField>
-                <UFormField label="Buton URL">
-                  <UInput v-model="componentEditorState.buttonUrl" />
-                </UFormField>
-              </div>
-            </div>
-
-            <div class="flex justify-end gap-3 mt-8">
-              <UButton
-                label="Vazgeç"
-                color="neutral"
-                variant="ghost"
-                @click="isComponentEditorOpen = false"
-              />
-              <UButton
-                label="Kaydet"
-                color="primary"
-                :loading="isSubmitting"
-                @click="onComponentSubmit"
-              />
-            </div>
-          </div>
-        </div>
+        <AdminPageBuilderEditor
+          v-if="selectedComponent"
+          :component="selectedComponent"
+          :loading="isSubmitting"
+          @save="onComponentSave"
+          @cancel="isComponentEditorOpen = false"
+        />
       </template>
     </USlideover>
   </ClientOnly>

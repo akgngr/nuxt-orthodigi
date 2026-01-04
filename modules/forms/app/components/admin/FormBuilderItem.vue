@@ -394,9 +394,15 @@ const removeNestedField = (colIndex: number, fieldId: string) => {
   const col = props.element.columns[colIndex]
   const idx = col.fields.findIndex(f => f.id === fieldId)
   if (idx > -1) {
-    if (confirm('Bu alanı silmek istediğinizden emin misiniz?')) {
-       col.fields.splice(idx, 1)
-    }
+    col.fields.splice(idx, 1)
+    
+    const toast = useToast()
+    toast.add({
+      title: 'Alan Silindi',
+      description: 'Form alanı başarıyla silindi.',
+      color: 'green',
+      icon: 'i-lucide-check-circle'
+    })
   }
 }
 </script>
